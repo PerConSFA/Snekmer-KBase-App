@@ -338,10 +338,10 @@ class Application(object):
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
-        self.rpc_service.add(impl_Snekmer.run_Snekmer,
-                             name='Snekmer.run_Snekmer',
+        self.rpc_service.add(impl_Snekmer.run_Snekmer_model,
+                             name='Snekmer.run_Snekmer_model',
                              types=[dict])
-        self.method_authentication['Snekmer.run_Snekmer'] = 'required'  # noqa
+        self.method_authentication['Snekmer.run_Snekmer_model'] = 'required'  # noqa
         self.rpc_service.add(impl_Snekmer.status,
                              name='Snekmer.status',
                              types=[dict])

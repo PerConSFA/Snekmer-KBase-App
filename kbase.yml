@@ -2,7 +2,7 @@ module-name:
     Snekmer
 
 module-description:
-    A KBase module
+    A KBase module wrapper for the Snekmer python tool
 
 service-language:
     python

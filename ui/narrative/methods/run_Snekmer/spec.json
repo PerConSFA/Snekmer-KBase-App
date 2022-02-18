@@ -9,37 +9,108 @@
         "input": null,
         "output": null
     },
-    "parameters": [ 
+    "parameters": [
         {
-            "id": "parameter_1",
-            "optional": true,
+            "id": "kmer",
+            "optional": false,
             "advanced": false,
             "allow_multiple": false,
             "default_values": [ "" ],
             "field_type": "text",
             "text_options": {
-                "valid_ws_types": [ ]
+                "validate_as": "int"
+            }
+        },
+        {
+            "id": "alphabet",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [{
+                    "display": "Hydro",
+                    "value": "0"
+                }, {
+                    "display": "Standard",
+                    "value": "1"
+                }, {
+                    "display": "Solvacc",
+                    "value": "2"
+                }, {
+                    "display": "Hydrocharge",
+                    "value": "3"
+                },{
+                    "display": "Hydrostruct",
+                    "value": "4"
+                },{
+                    "display": "Miqs",
+                    "value": "5"
+                },{
+                    "display": "None",
+                    "value": "None"
+                }]
+            }
+        },
+        {
+            "id": "min_rep_thresh",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "validate_as": "float"
+            }
+        },
+        {
+            "id": "processes",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "validate_as": "int"
             }
         }
+
     ],
+
     "behavior": {
         "service-mapping": {
             "url": "",
             "name": "Snekmer",
-            "method": "run_Snekmer",
+            "method": "run_Snekmer_model",
             "input_mapping": [
                 {
                     "narrative_system_variable": "workspace",
                     "target_property": "workspace_name"
-                },{
-                    "narrative_system_variable": "workspace_id",
-                    "target_property": "workspace_id"
-                },{
-                    "input_parameter": "parameter_1",
-                    "target_property": "parameter_1"
+                },
+                {
+                    "input_parameter": "kmer",
+                    "target_property": "kmer"
+                },
+                {
+                    "input_parameter": "alphabet",
+                    "target_property": "alphabet"
+                },
+                {
+                    "input_parameter": "min_rep_thresh",
+                    "target_property": "min_rep_thresh"
+                },
+                {
+                    "input_parameter": "processes",
+                    "target_property": "processes"
                 }
+
             ],
             "output_mapping": [
+                {
+                    "narrative_system_variable": "workspace",
+                    "target_property": "workspace_name"
+                },
                 {
                     "service_method_output_path": [0,"report_name"],
                     "target_property": "report_name"
