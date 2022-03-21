@@ -107,21 +107,37 @@ class Snekmer:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_Snekmer_search
+        print('Validating parameters.')
+        if 'kmer' not in params:
+            raise ValueError('Parameter kmer is not set in input arguments')
+        kmer = params['kmer']
+        if 'alphabet' not in params:
+            raise ValueError('Parameter alphabet is not set in input arguments')
+        alphabet = params['alphabet']
+        if 'min_rep_thresh' not in params:
+            raise ValueError('Parameter min_rep_thresh is not set in input arguments')
+        min_rep_thresh = params['min_rep_thresh']
+        if 'processes' not in params:
+            raise ValueError('Parameter processes is not set in input arguments')
+        processes = params['processes']
+        workspace_name = params['workspace_name']
 
         # Step 5 - Build a Report and return
-        reportObj = {
+        report_data = {
             'objects_created': [],
             'text_message': 'Kmer input was ' + str(kmer) + ' using the ' + str(alphabet) + ' alphabet with a rep threshold of ' +
                             str(min_rep_thresh) + ' with ' + str(processes) + ' processes.'
         }
         report = KBaseReport(self.callback_url)
-        report_info = report.create({'report': reportObj, 'workspace_name': params['workspace_name']})
+        report_info = report.create({'report': report_data, 'workspace_name': workspace_name})
 
         # STEP 6: contruct the output to send back
         output = {'report_name': report_info['name'],
                   'report_ref': report_info['ref'],
-                  'kmer': kmer
-
+                  'kmer': kmer,
+                  'alphabet': alphabet,
+                  'min_rep_thresh': min_rep_thresh,
+                  'processes': processes
                   }
         #END run_Snekmer_search
 

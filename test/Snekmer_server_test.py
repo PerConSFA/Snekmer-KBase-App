@@ -12,7 +12,6 @@ from installed_clients.WorkspaceClient import Workspace
 
 
 class SnekmerTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         token = os.environ.get('KB_AUTH_TOKEN', None)
@@ -53,28 +52,17 @@ class SnekmerTest(unittest.TestCase):
             print('Test workspace was deleted')
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-"""    def test_run_Snekmer_model(self):
-        # Prepare test objects in workspace if needed using
-        # self.getWsClient().save_objects({'workspace': self.getWsName(),
-        #                                  'objects': []})
-        #
-        # Run your method by
-        # ret = self.getImpl().your_method(self.getContext(), parameters...)
-        #
-        # Check returned data with
-        # self.assertEqual(ret[...], ...) or other unittest methods
-        ret = self.serviceImpl.run_Snekmer_model(self.ctx, {'workspace_name': self.wsName,
-                                                             'kmer': '420'})
-                                                             """
-
-def test_run_Snekmer_search(self):
-    #ref = "79/16/1"
-    ret = self.serviceImpl.run_Snekmer_search(self.ctx, {
-        'workspace_name': self.wsName,
-        #'assembly_ref': ref,
-        'kmer': 12,
-        'alphabet': 0,
-        'min_rep_thresh': 1,
-        'processes': 2
-    })
-    #print(result)
+    def test_run_Snekmer_search(self):
+        #ref = "79/16/1"
+        ret = self.serviceImpl.run_Snekmer_search(
+            self.ctx,
+            {
+            'workspace_name': self.wsName,
+            #'assembly_ref': ref,
+            'kmer': 12,
+            'alphabet': 0,
+            'min_rep_thresh': 1,
+            'processes': 2,
+            },
+        )
+        #print(result)
