@@ -342,6 +342,10 @@ class Application(object):
                              name='Snekmer.run_Snekmer_model',
                              types=[dict])
         self.method_authentication['Snekmer.run_Snekmer_model'] = 'required'  # noqa
+        self.rpc_service.add(impl_Snekmer.run_Snekmer_search,
+                             name='Snekmer.run_Snekmer_search',
+                             types=[dict])
+        self.method_authentication['Snekmer.run_Snekmer_search'] = 'required'  # noqa
         self.rpc_service.add(impl_Snekmer.status,
                              name='Snekmer.status',
                              types=[dict])

@@ -1,0 +1,51 @@
+#
+# define display information
+#
+name: Snekmer Search
+
+tooltip: |
+    Search unknown sequences for families using Snekmer models
+
+screenshots: []
+
+icon: icon.png
+
+#
+# define a set of similar apps that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            [app1, app2]
+        next:
+            [app3, app4]
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    kmer:
+        ui-name: |
+            K
+        short-hint: |
+            Kmer length for features
+    alphabet:
+        ui-name: |
+            Alphabet
+        short-hint: |
+            Mapping function for reduced amino acid alphabets
+    min_rep_thresh :
+        ui-name : |
+            Min. Representation Threshold
+        short-hint : |
+            Minimum number of sequences to include feature for prefiltering
+    processes :
+        ui-name : |
+            Processes
+        short-hint : |
+            For paralellization
+
+description : |
+    <p>Snekmer Search app </p>
+
+
