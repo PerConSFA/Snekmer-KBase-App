@@ -1,0 +1,13 @@
+file_extensions: ['fasta', 'fna', 'faa', 'fa']
+model_dir: "/kb/data/model_output/model/"
+basis_dir: "/kb/data/model_output/labels/"
+score_dir: "/kb/data/model_output/score/"
+nested_dir: False
+start: False
+end: False
+nucleotide: False
+randomize_alphabet: False
+regex: "[a-z]{3}[A-Z]{1}"
+verbose: False
+walk: False
+mode: None
