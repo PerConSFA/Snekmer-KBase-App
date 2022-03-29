@@ -42,7 +42,7 @@ class SnekmerTest(unittest.TestCase):
         cls.scratch = cls.cfg['scratch']
         cls.callback_url = os.environ['SDK_CALLBACK_URL']
         suffix = int(time.time() * 1000)
-        cls.wsName = "test_ContigFilter_" + str(suffix)
+        cls.wsName = "test_SnekmerSearch_" + str(suffix)
         ret = cls.wsClient.create_workspace({'workspace': cls.wsName})  # noqa
 
     @classmethod
@@ -53,12 +53,12 @@ class SnekmerTest(unittest.TestCase):
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     def test_run_Snekmer_search(self):
-        #ref = "79/16/1"
+        ref = "62964/5/1"
         ret = self.serviceImpl.run_Snekmer_search(
             self.ctx,
             {
             'workspace_name': self.wsName,
-            #'assembly_ref': ref,
+            'object_ref': ref,
             'kmer': 12,
             'alphabet': 0,
             'min_rep_thresh': 1,

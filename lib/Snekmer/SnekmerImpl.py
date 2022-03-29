@@ -2,9 +2,11 @@
 #BEGIN_HEADER
 import logging
 import os
-from pprint import pprint
+from pprint import pformat
+from Bio import SeqIO
 
 from installed_clients.KBaseReportClient import KBaseReport
+from installed_clients.GenomeFileUtilClient import GenomeFileUtil
 
 #END_HEADER
 
@@ -26,7 +28,7 @@ class Snekmer:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/abbyjerger/Snekmer.git"
-    GIT_COMMIT_HASH = "f32fe47cb47f17755beb586d1515bed56648703e"
+    GIT_COMMIT_HASH = "16f049bc02ef3c994f8ca39ac3e8b64f48b15843"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -91,13 +93,15 @@ class Snekmer:
         run_Snekmer_search accepts some of the search params for now, and returns results in a KBaseReport
         :param params: instance of type "SnekmerSearchParams" (Input
            parameters for Snekmer Search. workspace_name - the name of the
-           workspace for input/output kmer - kmer length for features
-           alphabet - mapping function for reduced amino acid sequences
-           min_rep_thresh - min number of sequences to include feature for
-           prefiltering processes - for parallelization) -> structure:
-           parameter "workspace_name" of String, parameter "kmer" of Long,
-           parameter "alphabet" of String, parameter "min_rep_thresh" of
-           Double, parameter "processes" of Long
+           workspace for input/output object_ref - Genome object with Protein
+           Translation sequence in the Feature kmer - kmer length for
+           features alphabet - mapping function for reduced amino acid
+           sequences min_rep_thresh - min number of sequences to include
+           feature for prefiltering processes - for parallelization) ->
+           structure: parameter "workspace_name" of String, parameter
+           "object_ref" of String, parameter "kmer" of Long, parameter
+           "alphabet" of Long, parameter "min_rep_thresh" of Long, parameter
+           "processes" of Long
         :returns: instance of type "SnekmerSearchOutput" (Output parameters
            for Snekmer Search. report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
@@ -107,7 +111,11 @@ class Snekmer:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_Snekmer_search
-        print('Validating parameters.')
+        print('Input parameters: ' + pformat(params))
+        print(" ")
+        print(type(params))
+        object_ref = params['object_ref']
+
         if 'kmer' not in params:
             raise ValueError('Parameter kmer is not set in input arguments')
         kmer = params['kmer']
@@ -122,7 +130,21 @@ class Snekmer:
         processes = params['processes']
         workspace_name = params['workspace_name']
 
+        # Use input Genome to produce a FASTA file with the protein sequences of the CDSs
+        print('Downloading Genome input as protein FASTA file.')
+        genomeUtil = GenomeFileUtil(self.callback_url)
+        # returns fasta_file as dict?
+        fasta_file = genomeUtil.genome_proteins_to_fasta({'genome_ref': object_ref, 'include_functions': 0, 'include_aliases': 0})
+
+        # print out parts of the genome to fasta file
+        print('First seq: ')
+        print(" ")
+        protein_list = list(SeqIO.parse(fasta_file['file_path'], "fasta"))
+        print(protein_list[0].seq)
+        print(" ")
+
         # Step 5 - Build a Report and return
+        print('Section: build report data.')
         report_data = {
             'objects_created': [],
             'text_message': 'Kmer input was ' + str(kmer) + ' using the ' + str(alphabet) + ' alphabet with a rep threshold of ' +

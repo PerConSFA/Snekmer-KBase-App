@@ -11,6 +11,17 @@
     },
     "parameters": [
         {
+            "id": "object_ref",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "valid_ws_types": [ "KBaseGenomes.Genome" ]
+            }
+        },
+        {
             "id": "kmer",
             "optional": false,
             "advanced": false,
@@ -84,6 +95,11 @@
             "name": "Snekmer",
             "method": "run_Snekmer_search",
             "input_mapping": [
+                {
+                    "input_parameter": "object_ref",
+                    "target_property": "object_ref",
+                    "target_type_transform": "ref"
+                },
                 {
                     "narrative_system_variable": "workspace",
                     "target_property": "workspace_name"

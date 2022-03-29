@@ -24,15 +24,20 @@ suggestions:
 # Configure the display and description of parameters
 #
 parameters :
-    kmer:
-        ui-name: |
+    object_ref:
+        ui-name : |
+            Genome
+        short-hint : |
+            Genome object with protein sequence
+    kmer :
+        ui-name : |
             K
-        short-hint: |
+        short-hint : |
             Kmer length for features
-    alphabet:
-        ui-name: |
+    alphabet :
+        ui-name : |
             Alphabet
-        short-hint: |
+        short-hint : |
             Mapping function for reduced amino acid alphabets
     min_rep_thresh :
         ui-name : |
