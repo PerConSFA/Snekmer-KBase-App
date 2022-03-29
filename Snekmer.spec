@@ -39,7 +39,7 @@ module Snekmer {
 
     workspace_name - the name of the workspace for input/output
     object_ref - Genome object with Protein Translation sequence in the Feature
-    kmer - kmer length for features
+    k - kmer length for features
     alphabet - mapping function for reduced amino acid sequences
     min_rep_thresh - min number of sequences to include feature for prefiltering
     processes - for parallelization
@@ -49,7 +49,7 @@ module Snekmer {
     typedef structure {
         string workspace_name;
         string object_ref;
-        int kmer;
+        int k;
         int alphabet;
         int min_rep_thresh;
         int processes;

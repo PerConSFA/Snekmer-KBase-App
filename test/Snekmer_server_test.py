@@ -59,7 +59,7 @@ class SnekmerTest(unittest.TestCase):
             {
             'workspace_name': self.wsName,
             'object_ref': ref,
-            'kmer': 12,
+            'k': 12,
             'alphabet': 0,
             'min_rep_thresh': 1,
             'processes': 2,

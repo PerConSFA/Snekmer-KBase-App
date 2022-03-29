@@ -29,9 +29,9 @@ parameters :
             Genome
         short-hint : |
             Genome object with protein sequence
-    kmer :
+    k :
         ui-name : |
-            K
+            Kmer
         short-hint : |
             Kmer length for features
     alphabet :

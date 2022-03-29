@@ -2,6 +2,7 @@
 #BEGIN_HEADER
 import logging
 import os
+import yaml
 from pprint import pformat
 from Bio import SeqIO
 
@@ -28,7 +29,7 @@ class Snekmer:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/abbyjerger/Snekmer.git"
-    GIT_COMMIT_HASH = "16f049bc02ef3c994f8ca39ac3e8b64f48b15843"
+    GIT_COMMIT_HASH = "6b4e77303f0ef97ee64bbc929c15f076ed31a7e7"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -94,14 +95,13 @@ class Snekmer:
         :param params: instance of type "SnekmerSearchParams" (Input
            parameters for Snekmer Search. workspace_name - the name of the
            workspace for input/output object_ref - Genome object with Protein
-           Translation sequence in the Feature kmer - kmer length for
-           features alphabet - mapping function for reduced amino acid
-           sequences min_rep_thresh - min number of sequences to include
-           feature for prefiltering processes - for parallelization) ->
-           structure: parameter "workspace_name" of String, parameter
-           "object_ref" of String, parameter "kmer" of Long, parameter
-           "alphabet" of Long, parameter "min_rep_thresh" of Long, parameter
-           "processes" of Long
+           Translation sequence in the Feature k - kmer length for features
+           alphabet - mapping function for reduced amino acid sequences
+           min_rep_thresh - min number of sequences to include feature for
+           prefiltering processes - for parallelization) -> structure:
+           parameter "workspace_name" of String, parameter "object_ref" of
+           String, parameter "k" of Long, parameter "alphabet" of Long,
+           parameter "min_rep_thresh" of Long, parameter "processes" of Long
         :returns: instance of type "SnekmerSearchOutput" (Output parameters
            for Snekmer Search. report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
@@ -113,41 +113,48 @@ class Snekmer:
         #BEGIN run_Snekmer_search
         print('Input parameters: ' + pformat(params))
         print(" ")
-        print(type(params))
-        object_ref = params['object_ref']
 
-        if 'kmer' not in params:
+        # check inputs
+        object_ref = params['object_ref']
+        if 'k' not in params:
             raise ValueError('Parameter kmer is not set in input arguments')
-        kmer = params['kmer']
+        k = params['k']
+        if 'processes' not in params:
+            raise ValueError('Parameter processes is not set in input arguments')
+        processes = params['processes']
+        workspace_name = params['workspace_name']
         if 'alphabet' not in params:
             raise ValueError('Parameter alphabet is not set in input arguments')
         alphabet = params['alphabet']
         if 'min_rep_thresh' not in params:
             raise ValueError('Parameter min_rep_thresh is not set in input arguments')
         min_rep_thresh = params['min_rep_thresh']
-        if 'processes' not in params:
-            raise ValueError('Parameter processes is not set in input arguments')
-        processes = params['processes']
-        workspace_name = params['workspace_name']
 
-        # Use input Genome to produce a FASTA file with the protein sequences of the CDSs
-        print('Downloading Genome input as protein FASTA file.')
-        genomeUtil = GenomeFileUtil(self.callback_url)
-        # returns fasta_file as dict?
-        fasta_file = genomeUtil.genome_proteins_to_fasta({'genome_ref': object_ref, 'include_functions': 0, 'include_aliases': 0})
+        # add these params to the config.yaml
+        new_params = {'k': params['k'], 'alphabet': params['alphabet'], 'min_rep_thresh': params['min_rep_thresh'],
+                      'processes': params['processes']}
+        #print('New params: ' + pformat(new_params))
+        print('add params to config: ')
+        with open('/kb/module/data/config.yaml', 'r') as file:
+            my_config = yaml.safe_load(file)
+            my_config.update(new_params)
+        with open('/kb/module/data/config.yaml', 'w') as file:
+            yaml.safe_dump(my_config, file)
 
-        # print out parts of the genome to fasta file
-        print('First seq: ')
-        print(" ")
-        protein_list = list(SeqIO.parse(fasta_file['file_path'], "fasta"))
-        print(protein_list[0].seq)
-        print(" ")
+        # testing that the appended config file is what I intended
+        print(' ')
+        print('Reading the appended config: ')
+        f = open('/kb/module/data/config.yaml', 'r')
+        content = f.read()
+        print(content)
+        f.close()
+        print(' ')
 
-        # Step 5 - Build a Report and return
+        # Step - Build a Report and return
         print('Section: build report data.')
         report_data = {
             'objects_created': [],
-            'text_message': 'Kmer input was ' + str(kmer) + ' using the ' + str(alphabet) + ' alphabet with a rep threshold of ' +
+            'text_message': 'Kmer input was ' + str(k) + ' using the ' + str(alphabet) + ' alphabet with a rep threshold of ' +
                             str(min_rep_thresh) + ' with ' + str(processes) + ' processes.'
         }
         report = KBaseReport(self.callback_url)
@@ -156,7 +163,7 @@ class Snekmer:
         # STEP 6: contruct the output to send back
         output = {'report_name': report_info['name'],
                   'report_ref': report_info['ref'],
-                  'kmer': kmer,
+                  'k': k,
                   'alphabet': alphabet,
                   'min_rep_thresh': min_rep_thresh,
                   'processes': processes

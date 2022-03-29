@@ -22,7 +22,7 @@
             }
         },
         {
-            "id": "kmer",
+            "id": "k",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
@@ -105,8 +105,8 @@
                     "target_property": "workspace_name"
                 },
                 {
-                    "input_parameter": "kmer",
-                    "target_property": "kmer"
+                    "input_parameter": "k",
+                    "target_property": "k"
                 },
                 {
                     "input_parameter": "alphabet",
