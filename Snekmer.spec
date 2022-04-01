@@ -37,6 +37,7 @@ module Snekmer {
     /*
     Input parameters for Snekmer Search.
 
+    staging_file_subdir_path - file in staging area
     workspace_name - the name of the workspace for input/output
     object_ref - Genome object with Protein Translation sequence in the Feature
     k - kmer length for features
@@ -47,6 +48,7 @@ module Snekmer {
     */
 
     typedef structure {
+        string staging_file_subdir_path;
         string workspace_name;
         string object_ref;
         int k;

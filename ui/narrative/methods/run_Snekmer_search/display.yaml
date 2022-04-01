@@ -24,7 +24,12 @@ suggestions:
 # Configure the display and description of parameters
 #
 parameters :
-    object_ref:
+    staging_file_subdir_path :
+        ui-name: |
+            Staging File
+        short-hint: |
+            File in staging area
+    object_ref :
         ui-name : |
             Genome
         short-hint : |

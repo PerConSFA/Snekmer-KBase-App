@@ -11,8 +11,17 @@
     },
     "parameters": [
         {
+            "id" : "staging_file_subdir_path",
+            "optional" : true,
+            "advanced" : false,
+            "allow_multiple" : false,
+            "default_values" : [ "" ],
+            "field_type" : "dynamic_dropdown",
+            "dynamic_dropdown_options" : {"data_source": "ftp_staging"}
+        },
+        {
             "id": "object_ref",
-            "optional": false,
+            "optional": true,
             "advanced": false,
             "allow_multiple": false,
             "default_values": [ "" ],
@@ -96,6 +105,10 @@
             "method": "run_Snekmer_search",
             "input_mapping": [
                 {
+                    "input_parameter": "staging_file_subdir_path",
+                    "target_property": "staging_file_subdir_path"
+                },
+                {
                     "input_parameter": "object_ref",
                     "target_property": "object_ref",
                     "target_type_transform": "ref"
@@ -130,7 +143,8 @@
                 {
                     "service_method_output_path": [0,"report_name"],
                     "target_property": "report_name"
-                },{
+                },
+                {
                     "service_method_output_path": [0,"report_ref"],
                     "target_property": "report_ref"
                 }
