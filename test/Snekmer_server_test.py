@@ -52,17 +52,18 @@ class SnekmerTest(unittest.TestCase):
             print('Test workspace was deleted')
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
+    # need to use test_unpack_staging_file as example to test grabbing staging file?
     def test_run_Snekmer_search(self):
         ref = "62964/5/1"
         ret = self.serviceImpl.run_Snekmer_search(
             self.ctx,
-            {
-            'workspace_name': self.wsName,
-            'object_ref': ref,
-            'k': 12,
-            'alphabet': 0,
-            'min_rep_thresh': 1,
-            'processes': 2,
-            },
+            {'staging_file_subdir_path': 'one.fasta',
+             'workspace_name': self.wsName,
+             'object_ref': ref,
+             'k': 12,
+             'alphabet': 0,
+             'min_rep_thresh': 1,
+             'processes': 2
+             }
         )
-        #print(result)
+        # print(result)

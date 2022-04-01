@@ -3,10 +3,15 @@
 import logging
 import os
 import yaml
+import shutil
+import subprocess
+import sys
 from pprint import pformat
 from Bio import SeqIO
 
 from installed_clients.KBaseReportClient import KBaseReport
+from installed_clients.kb_uploadmethodsClient import kb_uploadmethods
+from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.GenomeFileUtilClient import GenomeFileUtil
 
 #END_HEADER
@@ -29,7 +34,7 @@ class Snekmer:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/abbyjerger/Snekmer.git"
-    GIT_COMMIT_HASH = "6b4e77303f0ef97ee64bbc929c15f076ed31a7e7"
+    GIT_COMMIT_HASH = "3e1dab70b6bbcfafd4f8ef93f3a83b829a3d03f2"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -93,15 +98,17 @@ class Snekmer:
         """
         run_Snekmer_search accepts some of the search params for now, and returns results in a KBaseReport
         :param params: instance of type "SnekmerSearchParams" (Input
-           parameters for Snekmer Search. workspace_name - the name of the
-           workspace for input/output object_ref - Genome object with Protein
-           Translation sequence in the Feature k - kmer length for features
-           alphabet - mapping function for reduced amino acid sequences
-           min_rep_thresh - min number of sequences to include feature for
-           prefiltering processes - for parallelization) -> structure:
-           parameter "workspace_name" of String, parameter "object_ref" of
-           String, parameter "k" of Long, parameter "alphabet" of Long,
-           parameter "min_rep_thresh" of Long, parameter "processes" of Long
+           parameters for Snekmer Search. staging_file_subdir_path - file in
+           staging area workspace_name - the name of the workspace for
+           input/output object_ref - Genome object with Protein Translation
+           sequence in the Feature k - kmer length for features alphabet -
+           mapping function for reduced amino acid sequences min_rep_thresh -
+           min number of sequences to include feature for prefiltering
+           processes - for parallelization) -> structure: parameter
+           "staging_file_subdir_path" of String, parameter "workspace_name"
+           of String, parameter "object_ref" of String, parameter "k" of
+           Long, parameter "alphabet" of Long, parameter "min_rep_thresh" of
+           Long, parameter "processes" of Long
         :returns: instance of type "SnekmerSearchOutput" (Output parameters
            for Snekmer Search. report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
@@ -111,18 +118,17 @@ class Snekmer:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_Snekmer_search
-        print('Input parameters: ' + pformat(params))
-        print(" ")
 
         # check inputs
+        staging_file = params['staging_file_subdir_path']
         object_ref = params['object_ref']
+        workspace_name = params['workspace_name']
         if 'k' not in params:
             raise ValueError('Parameter kmer is not set in input arguments')
         k = params['k']
         if 'processes' not in params:
             raise ValueError('Parameter processes is not set in input arguments')
         processes = params['processes']
-        workspace_name = params['workspace_name']
         if 'alphabet' not in params:
             raise ValueError('Parameter alphabet is not set in input arguments')
         alphabet = params['alphabet']
@@ -130,25 +136,52 @@ class Snekmer:
             raise ValueError('Parameter min_rep_thresh is not set in input arguments')
         min_rep_thresh = params['min_rep_thresh']
 
-        # add these params to the config.yaml
-        new_params = {'k': params['k'], 'alphabet': params['alphabet'], 'min_rep_thresh': params['min_rep_thresh'],
+        # add these param inputs from the UI to the config.yaml
+        print('Save UI inputs into config.yaml')
+        print("=" * 80)
+        new_params = {'k': params['k'], 'alphabet': params['alphabet'],
+                      'min_rep_thresh': params['min_rep_thresh'],
                       'processes': params['processes']}
-        #print('New params: ' + pformat(new_params))
-        print('add params to config: ')
         with open('/kb/module/data/config.yaml', 'r') as file:
             my_config = yaml.safe_load(file)
             my_config.update(new_params)
-        with open('/kb/module/data/config.yaml', 'w') as file:
-            yaml.safe_dump(my_config, file)
 
-        # testing that the appended config file is what I intended
-        print(' ')
-        print('Reading the appended config: ')
-        f = open('/kb/module/data/config.yaml', 'r')
-        content = f.read()
-        print(content)
-        f.close()
-        print(' ')
+        # save updated config.yaml to self.shared_folder and
+        # start creating directory structure Snekmer needs
+        with open(f"{self.shared_folder}/config.yaml", 'w') as file:
+            yaml.safe_dump(my_config, file)
+        os.makedirs(f"{self.shared_folder}/input")
+
+        # save model_outputs from data to /kb/module/work/tmp
+        shutil.copytree("/kb/module/data/model_output", f"{self.shared_folder}/model_output")
+        print("="*80)
+
+        # Use input Genome to produce a FASTA file with the protein sequences of the CDSs
+        print('Downloading Genome input as protein FASTA file.')
+        print("=" * 80)
+        genomeUtil = GenomeFileUtil(self.callback_url)
+        fasta_file = genomeUtil.genome_proteins_to_fasta({'genome_ref': object_ref})
+        #, 'include_functions': 0,'include_aliases': 0
+        sys.stdout.flush()
+
+        # save fasta to the input folder
+        shutil.copyfile(fasta_file['file_path'], f"{self.shared_folder}/input/inputfromgenome.fasta")
+        print("="*80)
+
+        # after self.shared_folder directory is set up, run commandline section
+        print('Run subprocess of snekmer search')
+        print("=" * 80)
+        cmd_string = "snekmer search"
+        cmd_process = subprocess.Popen(cmd_string, stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT, cwd=self.shared_folder,
+                                       shell=True)
+        cmd_process.wait()
+        print('return code: ' + str(cmd_process.returncode))
+        print("="*80)
+        output, errors = cmd_process.communicate()
+        print("output: " + str(output) + '\n')
+        print("errors: " + str(errors) + '\n')
+        print("="*80)
 
         # Step - Build a Report and return
         print('Section: build report data.')
@@ -158,9 +191,9 @@ class Snekmer:
                             str(min_rep_thresh) + ' with ' + str(processes) + ' processes.'
         }
         report = KBaseReport(self.callback_url)
-        report_info = report.create({'report': report_data, 'workspace_name': workspace_name})
+        report_info = report({'report': report_data, 'workspace_name': workspace_name})
 
-        # STEP 6: contruct the output to send back
+        # STEP 6: construct the output to send back
         output = {'report_name': report_info['name'],
                   'report_ref': report_info['ref'],
                   'k': k,
