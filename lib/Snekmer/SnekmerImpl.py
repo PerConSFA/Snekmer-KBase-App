@@ -6,6 +6,7 @@ import yaml
 import shutil
 import subprocess
 import sys
+import uuid
 from pprint import pformat
 from Bio import SeqIO
 
@@ -183,10 +184,19 @@ class Snekmer:
         print("errors: " + str(errors) + '\n')
         print("="*80)
 
+        # set up output directory for output files
+        #path = os.path.join(self.shared_folder, "/output/search")
+        #os.mkdir(path)
+
+        dfu = DataFileUtil(self.callback_url)
+        report_shock_id = dfu.file_to_shock({'file_path': f"{self.shared_folder}/output/search",
+                                             'pack': 'zip'})['shock_id']
+
+
         # Step - Build a Report and return
         print('Section: build report data.')
         output_files = [{
-            'path': f"{self.shared_folder}/output/search",
+            'shock_id': report_shock_id,
             'name': 'search.zip'}]
 
         report_params = {
