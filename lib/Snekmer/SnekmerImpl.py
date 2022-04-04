@@ -185,22 +185,23 @@ class Snekmer:
 
         # Step - Build a Report and return
         print('Section: build report data.')
-        report_data = {
+        output_files = [{
+            'path': f"{self.shared_folder}/output/search",
+            'name': 'search.zip'}]
+
+        report_params = {
+            'message': 'Kmer input was ' + str(k) + ' using the ' + str(alphabet) +
+                       ' alphabet with a rep threshold of ' + str(min_rep_thresh) +
+                       ' with ' + str(processes) + ' processes.',
+            'workspace_name': params.get('workspace_name'),
             'objects_created': [],
-            'text_message': 'Kmer input was ' + str(k) + ' using the ' + str(alphabet) + ' alphabet with a rep threshold of ' +
-                            str(min_rep_thresh) + ' with ' + str(processes) + ' processes.'
+            'file_links': output_files
         }
-        report = KBaseReport(self.callback_url)
-        report_info = report({'report': report_data, 'workspace_name': workspace_name})
+        report_client = KBaseReport(self.callback_url)
+        output = report_client.create_extended_report(report_params)
 
         # STEP 6: construct the output to send back
-        output = {'report_name': report_info['name'],
-                  'report_ref': report_info['ref'],
-                  'k': k,
-                  'alphabet': alphabet,
-                  'min_rep_thresh': min_rep_thresh,
-                  'processes': processes
-                  }
+        report_output = {'report_name': output['name'], 'report_ref': output['ref']}
         #END run_Snekmer_search
 
         # At some point might do deeper type checking...
@@ -208,7 +209,7 @@ class Snekmer:
             raise ValueError('Method run_Snekmer_search return value ' +
                              'output is not type dict as required.')
         # return the results
-        return [output]
+        return [report_output]
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",
