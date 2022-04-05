@@ -203,7 +203,7 @@ class Snekmer:
             'message': 'Kmer input was ' + str(k) + ' using the ' + str(alphabet) +
                        ' alphabet with a rep threshold of ' + str(min_rep_thresh) +
                        ' with ' + str(processes) + ' processes.',
-            'workspace_name': params.get('workspace_name'),
+            'workspace_name': workspace_name,
             'objects_created': [],
             'file_links': output_files
         }
