@@ -185,14 +185,18 @@ class Snekmer:
         print("="*80)
 
         # set up output directory for output files
-        #path = os.path.join(self.shared_folder, "/output/search")
-        #os.mkdir(path)
+        output_directory = os.path.join(self.shared_folder, "output/search")
+        #os.makedirs(output_directory, exist_ok=True)
+        #result_file = os.path.join(output_directory, 'search.zip')
+        print("output_directory: " + output_directory)
+        print("=" * 80)
+        #print("result_file: " + result_file)
 
         dfu = DataFileUtil(self.callback_url)
-        report_shock_id = dfu.file_to_shock({'file_path': f"{self.shared_folder}/output/search",
+        report_shock_id = dfu.file_to_shock({'file_path': output_directory,
                                              'pack': 'zip'})['shock_id']
 
-
+        # f"{self.shared_folder}/output/search"
         # Step - Build a Report and return
         print('Section: build report data.')
         output_files = [{
