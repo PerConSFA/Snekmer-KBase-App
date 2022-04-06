@@ -198,7 +198,7 @@ class Snekmer:
         print("="*80)
 
         # set up output directory for output files
-        result_directory = os.path.join(self.shared_folder, "output/search/")
+        result_directory = os.path.join(self.shared_folder, "output", "search")
         output_files = list()
         output_directory = os.path.join(self.shared_folder, str(uuid.uuid4()))
         os.makedirs(output_directory)
