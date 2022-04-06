@@ -201,9 +201,11 @@ class Snekmer:
         result_directory = os.path.join(self.shared_folder, "output/search/")
         output_files = list()
         output_directory = os.path.join(self.shared_folder, str(uuid.uuid4()))
-        os.mkdir(output_directory)
+        os.makedirs(output_directory)
         result_file = os.path.join(output_directory, 'search.zip')
 
+        print("result directory: " + result_directory)
+        print("=" * 80)
         print("output_directory: " + output_directory)
         print("=" * 80)
         print("result_file: " + result_file)
@@ -215,7 +217,7 @@ class Snekmer:
                              allowZip64=True) as zip_file:
             for root, dirs, files in os.walk(result_directory):
                 for file in files:
-                    if file.endswith('csv') or file.endswith('png'):
+                    if file.endswith('.csv') or file.endswith('.png'):
                         zip_file.write(os.path.join(root, file),
                                        os.path.join(os.path.basename(root), file))
 
