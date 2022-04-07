@@ -7,7 +7,7 @@ module Snekmer {
     Input parameters for Snekmer Model.
 
     workspace_name - the name of the workspace for input/output
-    kmer - kmer length for features
+    k - kmer length for features
     alphabet - mapping function for reduced amino acid sequences
     min_rep_thresh - min number of sequences to include feature for prefiltering
     processes - for parallelization
@@ -16,7 +16,7 @@ module Snekmer {
 
     typedef structure {
         string workspace_name;
-        int kmer;
+        int k;
         string alphabet;
         float min_rep_thresh;
         int processes;
@@ -37,7 +37,6 @@ module Snekmer {
     /*
     Input parameters for Snekmer Search.
 
-    staging_file_subdir_path - file in staging area
     workspace_name - the name of the workspace for input/output
     object_ref - Genome object with Protein Translation sequence in the Feature
     k - kmer length for features
@@ -48,7 +47,6 @@ module Snekmer {
     */
 
     typedef structure {
-        string staging_file_subdir_path;
         string workspace_name;
         string object_ref;
         int k;

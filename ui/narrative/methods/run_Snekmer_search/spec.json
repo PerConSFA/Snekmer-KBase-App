@@ -11,15 +11,6 @@
     },
     "parameters": [
         {
-            "id" : "staging_file_subdir_path",
-            "optional" : true,
-            "advanced" : false,
-            "allow_multiple" : false,
-            "default_values" : [ "" ],
-            "field_type" : "dynamic_dropdown",
-            "dynamic_dropdown_options" : {"data_source": "ftp_staging"}
-        },
-        {
             "id": "object_ref",
             "optional": true,
             "advanced": false,
@@ -104,10 +95,6 @@
             "name": "Snekmer",
             "method": "run_Snekmer_search",
             "input_mapping": [
-                {
-                    "input_parameter": "staging_file_subdir_path",
-                    "target_property": "staging_file_subdir_path"
-                },
                 {
                     "input_parameter": "object_ref",
                     "target_property": "object_ref",
