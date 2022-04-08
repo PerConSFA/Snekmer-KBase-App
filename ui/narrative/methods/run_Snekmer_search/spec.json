@@ -12,9 +12,9 @@
     "parameters": [
         {
             "id": "object_ref",
-            "optional": true,
+            "optional": false,
             "advanced": false,
-            "allow_multiple": false,
+            "allow_multiple": true,
             "default_values": [ "" ],
             "field_type": "text",
             "text_options": {
@@ -42,22 +42,22 @@
             "dropdown_options": {
                 "options": [{
                     "display": "Hydro",
-                    "value": "0"
+                    "value": 0
                 }, {
                     "display": "Standard",
-                    "value": "1"
+                    "value": 1
                 }, {
                     "display": "Solvacc",
-                    "value": "2"
+                    "value": 2
                 }, {
                     "display": "Hydrocharge",
-                    "value": "3"
+                    "value": 3
                 },{
                     "display": "Hydrostruct",
-                    "value": "4"
+                    "value": 4
                 },{
                     "display": "Miqs",
-                    "value": "5"
+                    "value": 5
                 },{
                     "display": "None",
                     "value": "None"

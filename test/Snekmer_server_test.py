@@ -52,8 +52,10 @@ class SnekmerTest(unittest.TestCase):
             print('Test workspace was deleted')
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
+    # 66073/19/1 is Shewanella_oneidensis_MR-1
+    # 66073/2/1 is Escherichia_coli_K-12_MG1655
     def test_run_Snekmer_search(self):
-        ref = "62964/5/1"
+        ref = "66073/19/1"
         ret = self.serviceImpl.run_Snekmer_search(
             self.ctx,
             {
@@ -62,7 +64,7 @@ class SnekmerTest(unittest.TestCase):
              'k': 12,
              'alphabet': 0,
              'min_rep_thresh': 1,
-             'processes': 2
+             'processes': 4
              }
         )
         # print(result)
