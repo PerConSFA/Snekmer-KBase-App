@@ -42,22 +42,22 @@
             "dropdown_options": {
                 "options": [{
                     "display": "Hydro",
-                    "value": 0
+                    "value": "hydro"
                 }, {
                     "display": "Standard",
-                    "value": 1
+                    "value": "standard"
                 }, {
                     "display": "Solvacc",
-                    "value": 2
+                    "value": "solvacc"
                 }, {
                     "display": "Hydrocharge",
-                    "value": 3
+                    "value": "hydrocharge"
                 },{
                     "display": "Hydrostruct",
-                    "value": 4
+                    "value": "hydrostruct"
                 },{
                     "display": "Miqs",
-                    "value": 5
+                    "value": "miqs"
                 },{
                     "display": "None",
                     "value": "None"

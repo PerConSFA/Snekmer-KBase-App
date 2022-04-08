@@ -62,7 +62,7 @@ class SnekmerTest(unittest.TestCase):
              'workspace_name': self.wsName,
              'object_ref': ref,
              'k': 12,
-             'alphabet': 0,
+             'alphabet': "hydro",
              'min_rep_thresh': 1,
              'processes': 4
              }
