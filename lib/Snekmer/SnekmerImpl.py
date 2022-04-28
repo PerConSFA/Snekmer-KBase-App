@@ -5,6 +5,7 @@ import os
 import yaml
 import shutil
 import subprocess
+import zipfile
 import sys
 import uuid
 from pprint import pformat
@@ -35,7 +36,7 @@ class Snekmer:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/abbyjerger/Snekmer.git"
-    GIT_COMMIT_HASH = "3e1dab70b6bbcfafd4f8ef93f3a83b829a3d03f2"
+    GIT_COMMIT_HASH = "39f1b5086960626aba544533ada61801f0e6da3a"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -74,8 +75,20 @@ class Snekmer:
         # return variables are: output
         #BEGIN run_Snekmer_model
 
-        #print('running snekmer model with params=')
-        #pprint(params)
+        # check inputs
+        workspace_name = params['workspace_name']
+        if 'k' not in params:
+            raise ValueError('Parameter kmer is not set in input arguments')
+        k = params['k']
+        if 'processes' not in params:
+            raise ValueError('Parameter processes is not set in input arguments')
+        processes = params['processes']
+        if 'alphabet' not in params:
+            raise ValueError('Parameter alphabet is not set in input arguments')
+        alphabet = params['alphabet']
+        if 'min_rep_thresh' not in params:
+            raise ValueError('Parameter min_rep_thresh is not set in input arguments')
+        min_rep_thresh = params['min_rep_thresh']
 
         report = KBaseReport(self.callback_url)
         report_info = report.create({'report': {'objects_created':[],
@@ -99,17 +112,15 @@ class Snekmer:
         """
         run_Snekmer_search accepts some of the search params for now, and returns results in a KBaseReport
         :param params: instance of type "SnekmerSearchParams" (Input
-           parameters for Snekmer Search. staging_file_subdir_path - file in
-           staging area workspace_name - the name of the workspace for
-           input/output object_ref - Genome object with Protein Translation
-           sequence in the Feature k - kmer length for features alphabet -
-           mapping function for reduced amino acid sequences min_rep_thresh -
-           min number of sequences to include feature for prefiltering
-           processes - for parallelization) -> structure: parameter
-           "staging_file_subdir_path" of String, parameter "workspace_name"
-           of String, parameter "object_ref" of String, parameter "k" of
-           Long, parameter "alphabet" of Long, parameter "min_rep_thresh" of
-           Long, parameter "processes" of Long
+           parameters for Snekmer Search. workspace_name - the name of the
+           workspace for input/output object_ref - Genome object with Protein
+           Translation sequence in the Feature k - kmer length for features
+           alphabet - mapping function for reduced amino acid sequences
+           min_rep_thresh - min number of sequences to include feature for
+           prefiltering processes - for parallelization) -> structure:
+           parameter "workspace_name" of String, parameter "object_ref" of
+           String, parameter "k" of Long, parameter "alphabet" of Long,
+           parameter "min_rep_thresh" of Long, parameter "processes" of Long
         :returns: instance of type "SnekmerSearchOutput" (Output parameters
            for Snekmer Search. report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
@@ -121,11 +132,10 @@ class Snekmer:
         #BEGIN run_Snekmer_search
 
         # check inputs
-        staging_file = params['staging_file_subdir_path']
         object_ref = params['object_ref']
         workspace_name = params['workspace_name']
         if 'k' not in params:
-            raise ValueError('Parameter kmer is not set in input arguments')
+            raise ValueError('Parameter k is not set in input arguments')
         k = params['k']
         if 'processes' not in params:
             raise ValueError('Parameter processes is not set in input arguments')
@@ -140,9 +150,9 @@ class Snekmer:
         # add these param inputs from the UI to the config.yaml
         print('Save UI inputs into config.yaml')
         print("=" * 80)
-        new_params = {'k': params['k'], 'alphabet': params['alphabet'],
-                      'min_rep_thresh': params['min_rep_thresh'],
-                      'processes': params['processes']}
+        new_params = {'k': k, 'alphabet': alphabet,
+                      'min_rep_thresh': min_rep_thresh,
+                      'processes': processes}
         with open('/kb/module/data/config.yaml', 'r') as file:
             my_config = yaml.safe_load(file)
             my_config.update(new_params)
@@ -162,8 +172,6 @@ class Snekmer:
         print("=" * 80)
         genomeUtil = GenomeFileUtil(self.callback_url)
         fasta_file = genomeUtil.genome_proteins_to_fasta({'genome_ref': object_ref})
-        #, 'include_functions': 0,'include_aliases': 0
-        #sys.stdout.flush()
 
         # save fasta to the input folder
         shutil.copyfile(fasta_file['file_path'], f"{self.shared_folder}/input/inputfromgenome.fasta")
@@ -185,46 +193,57 @@ class Snekmer:
         print("="*80)
 
         # set up output directory for output files
-        output_directory = os.path.join(self.shared_folder, "output/search")
-        #os.makedirs(output_directory, exist_ok=True)
-        #result_file = os.path.join(output_directory, 'search.zip')
+        result_directory = os.path.join(self.shared_folder, "output", "search", "")
+        output_files = list()
+        output_directory = os.path.join(self.shared_folder, str(uuid.uuid4()))
+        os.makedirs(output_directory)
+        result_file = os.path.join(output_directory, 'search.zip')
+
+        print("result directory: " + result_directory)
+        print("=" * 80)
         print("output_directory: " + output_directory)
         print("=" * 80)
-        #print("result_file: " + result_file)
+        print("result_file: " + result_file)
+        print("=" * 80)
 
-        #dfu = DataFileUtil(self.callback_url)
-        #report_shock_id = dfu.file_to_shock({'file_path': output_directory,
-                                             #'pack': 'zip'})
+        # zip output files for the KBase report
+        with zipfile.ZipFile(result_file, 'w',
+                             zipfile.ZIP_DEFLATED,
+                             allowZip64=True) as zip_file:
+            for root, dirs, files in os.walk(result_directory):
+                for file in files:
+                    if file.endswith('.csv') or file.endswith('.png'):
+                        zip_file.write(os.path.join(root, file),
+                                       os.path.join(os.path.basename(root), file))
 
-        # f"{self.shared_folder}/output/search"
-        # Step - Build a Report and return
-        print('Section: build report data.')
-        output_files = list()
         output_files.append({
-            'path': output_directory,
-            'name': 'search.zip',
-            'label': "Search results label",
-            'description': "Files generated by Snekmer Search"})
+            'path': result_file,
+            'name': os.path.basename(result_file),
+            'label': os.path.basename(result_file),
+            'description': 'Files generated by Snekmer Search'})
 
+        # Build a Report and return
+        print('Section: build report data.')
         report_params = {
             'message': 'Kmer input was ' + str(k),
             'workspace_name': workspace_name,
+            'objects_created': [],
             'file_links': output_files
         }
-        report_client = KBaseReport(self.callback_url)
-        output = report_client.create_extended_report(report_params)
 
-        # STEP 6: construct the output to send back
-        report_output = {'report_name': output['name'], 'report_ref': output['ref']}
+        report_client = KBaseReport(self.callback_url)
+        report_info = report_client.create_extended_report(report_params)
+
+        # construct the output to send back
+        output = {'report_name': report_info['name'], 'report_ref': report_info['ref']}
         #END run_Snekmer_search
 
         # At some point might do deeper type checking...
-        if not isinstance(report_output, dict):
+        if not isinstance(output, dict):
             raise ValueError('Method run_Snekmer_search return value ' +
                              'output is not type dict as required.')
         # return the results
-        return [report_output]
-
+        return [output]
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

@@ -1,7 +1,7 @@
 # create multi-stage build starting with mambaforge image that has all needed snekmer packages
 # might want to upgrade pip (if not in environment.yml)
 FROM condaforge/mambaforge:latest AS mambasetup
-RUN git clone --branch v0.1.1-beta https://github.com/PNNL-CompBio/Snekmer.git && \
+RUN git clone --branch v0.1.2-beta https://github.com/PNNL-CompBio/Snekmer.git && \
     mamba env update -n base -f ./Snekmer/environment.yml && \
     pip install opencv-python  && \
     apt update && apt install -y libsm6 libxext6 && \

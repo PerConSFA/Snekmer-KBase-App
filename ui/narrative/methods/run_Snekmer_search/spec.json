@@ -11,17 +11,8 @@
     },
     "parameters": [
         {
-            "id" : "staging_file_subdir_path",
-            "optional" : true,
-            "advanced" : false,
-            "allow_multiple" : false,
-            "default_values" : [ "" ],
-            "field_type" : "dynamic_dropdown",
-            "dynamic_dropdown_options" : {"data_source": "ftp_staging"}
-        },
-        {
             "id": "object_ref",
-            "optional": true,
+            "optional": false,
             "advanced": false,
             "allow_multiple": false,
             "default_values": [ "" ],
@@ -51,22 +42,22 @@
             "dropdown_options": {
                 "options": [{
                     "display": "Hydro",
-                    "value": "0"
+                    "value": "hydro"
                 }, {
                     "display": "Standard",
-                    "value": "1"
+                    "value": "standard"
                 }, {
                     "display": "Solvacc",
-                    "value": "2"
+                    "value": "solvacc"
                 }, {
                     "display": "Hydrocharge",
-                    "value": "3"
+                    "value": "hydrocharge"
                 },{
                     "display": "Hydrostruct",
-                    "value": "4"
+                    "value": "hydrostruct"
                 },{
                     "display": "Miqs",
-                    "value": "5"
+                    "value": "miqs"
                 },{
                     "display": "None",
                     "value": "None"
@@ -104,10 +95,6 @@
             "name": "Snekmer",
             "method": "run_Snekmer_search",
             "input_mapping": [
-                {
-                    "input_parameter": "staging_file_subdir_path",
-                    "target_property": "staging_file_subdir_path"
-                },
                 {
                     "input_parameter": "object_ref",
                     "target_property": "object_ref",
