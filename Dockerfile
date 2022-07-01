@@ -14,7 +14,7 @@ RUN git clone --branch v0.1.2-beta https://github.com/PNNL-CompBio/Snekmer.git &
 FROM kbase/sdkbase2:python
 MAINTAINER KBase Developer
 
-WORKDIR /kb/module
+#WORKDIR /kb/module
 # mamba env section
 COPY --from=mambasetup /opt/conda/. /opt/conda/
 ENV PATH /opt/conda/bin:$PATH

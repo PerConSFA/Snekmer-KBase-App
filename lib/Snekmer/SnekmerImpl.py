@@ -36,7 +36,7 @@ class Snekmer:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/abbyjerger/Snekmer.git"
-    GIT_COMMIT_HASH = "39f1b5086960626aba544533ada61801f0e6da3a"
+    GIT_COMMIT_HASH = "ab41786be7cea22d5f38912c6bbb43c47072d9c7"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -58,13 +58,13 @@ class Snekmer:
         run_Snekmer_model accepts some of the model params for now, and returns results in a KBaseReport
         :param params: instance of type "SnekmerModelParams" (Input
            parameters for Snekmer Model. workspace_name - the name of the
-           workspace for input/output kmer - kmer length for features
-           alphabet - mapping function for reduced amino acid sequences
-           min_rep_thresh - min number of sequences to include feature for
-           prefiltering processes - for parallelization) -> structure:
-           parameter "workspace_name" of String, parameter "kmer" of Long,
-           parameter "alphabet" of String, parameter "min_rep_thresh" of
-           Double, parameter "processes" of Long
+           workspace for input/output k - kmer length for features alphabet -
+           mapping function for reduced amino acid sequences min_rep_thresh -
+           min number of sequences to include feature for prefiltering
+           processes - for parallelization) -> structure: parameter
+           "workspace_name" of String, parameter "k" of Long, parameter
+           "alphabet" of String, parameter "min_rep_thresh" of Double,
+           parameter "processes" of Long
         :returns: instance of type "SnekmerModelOutput" (Output parameters
            for Snekmer Model. report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
@@ -117,10 +117,9 @@ class Snekmer:
            Translation sequence in the Feature k - kmer length for features
            alphabet - mapping function for reduced amino acid sequences
            min_rep_thresh - min number of sequences to include feature for
-           prefiltering processes - for parallelization) -> structure:
-           parameter "workspace_name" of String, parameter "object_ref" of
-           String, parameter "k" of Long, parameter "alphabet" of Long,
-           parameter "min_rep_thresh" of Long, parameter "processes" of Long
+           prefiltering) -> structure: parameter "workspace_name" of String,
+           parameter "object_ref" of String, parameter "k" of Long, parameter
+           "alphabet" of Long, parameter "min_rep_thresh" of Long
         :returns: instance of type "SnekmerSearchOutput" (Output parameters
            for Snekmer Search. report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
@@ -131,15 +130,20 @@ class Snekmer:
         # return variables are: output
         #BEGIN run_Snekmer_search
 
-        # check inputs
+        # Print statements to stdout/stderr are captured and available as the App log
+        logging.info('Starting run_Snekmer_search function. Params=' + pformat(params))
+
+        # Check inputs
+        logging.info('Validating parameters.')
+        if 'object_ref' not in params:
+            raise ValueError('Parameter object_ref is not set in input arguments')
         object_ref = params['object_ref']
+        if 'workspace_name' not in params:
+            raise ValueError('Parameter workspace_name is not set in input arguments')
         workspace_name = params['workspace_name']
         if 'k' not in params:
             raise ValueError('Parameter k is not set in input arguments')
         k = params['k']
-        if 'processes' not in params:
-            raise ValueError('Parameter processes is not set in input arguments')
-        processes = params['processes']
         if 'alphabet' not in params:
             raise ValueError('Parameter alphabet is not set in input arguments')
         alphabet = params['alphabet']
@@ -147,15 +151,20 @@ class Snekmer:
             raise ValueError('Parameter min_rep_thresh is not set in input arguments')
         min_rep_thresh = params['min_rep_thresh']
 
-        # add these param inputs from the UI to the config.yaml
-        print('Save UI inputs into config.yaml')
-        print("=" * 80)
+        # Add params from the UI to the config.yaml
+        logging.info('Writing UI inputs into the config.yaml')
         new_params = {'k': k, 'alphabet': alphabet,
-                      'min_rep_thresh': min_rep_thresh,
-                      'processes': processes}
+                      'min_rep_thresh': min_rep_thresh
+                      }
         with open('/kb/module/data/config.yaml', 'r') as file:
             my_config = yaml.safe_load(file)
             my_config.update(new_params)
+
+        print("The items in the config file: ")
+        print("=" * 80)
+        for k, v in my_config.items():
+            print(k,v)
+        print("=" * 80)
 
         # save updated config.yaml to self.shared_folder and
         # start creating directory structure Snekmer needs

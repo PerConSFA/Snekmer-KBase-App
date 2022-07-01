@@ -1,3 +1,4 @@
+processes: 4
 file_extensions: ['fasta', 'fna', 'faa', 'fa']
 model_dir: "/kb/module/work/tmp/model_output/model/"
 basis_dir: "/kb/module/work/tmp/model_output/labels/"

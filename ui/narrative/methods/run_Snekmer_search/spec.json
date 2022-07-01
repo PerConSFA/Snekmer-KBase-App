@@ -74,19 +74,7 @@
             "text_options": {
                 "validate_as": "int"
             }
-        },
-        {
-            "id": "processes",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "" ],
-            "field_type": "text",
-            "text_options": {
-                "validate_as": "int"
-            }
         }
-
     ],
 
     "behavior": {
@@ -115,12 +103,7 @@
                 {
                     "input_parameter": "min_rep_thresh",
                     "target_property": "min_rep_thresh"
-                },
-                {
-                    "input_parameter": "processes",
-                    "target_property": "processes"
                 }
-
             ],
             "output_mapping": [
                 {

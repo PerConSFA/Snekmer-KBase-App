@@ -42,7 +42,6 @@ module Snekmer {
     k - kmer length for features
     alphabet - mapping function for reduced amino acid sequences
     min_rep_thresh - min number of sequences to include feature for prefiltering
-    processes - for parallelization
 
     */
 
@@ -52,7 +51,6 @@ module Snekmer {
         int k;
         int alphabet;
         int min_rep_thresh;
-        int processes;
     } SnekmerSearchParams;
 
     /*

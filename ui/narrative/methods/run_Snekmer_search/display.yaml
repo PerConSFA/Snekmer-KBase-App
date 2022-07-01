@@ -44,11 +44,6 @@ parameters :
             Min. Representation Threshold
         short-hint : |
             Minimum number of sequences to include feature for prefiltering
-    processes :
-        ui-name : |
-            Processes
-        short-hint : |
-            For paralellization
 
 description : |
     <p>Snekmer Search app </p>
