@@ -55,7 +55,7 @@ class SnekmerTest(unittest.TestCase):
     # 66073/19/1 is Shewanella_oneidensis_MR-1
     # 66073/2/1 is Escherichia_coli_K-12_MG1655
     def test_run_Snekmer_search(self):
-        ref = "66073/2/1"
+        ref = ["66073/2/1", "66073/19/1"]
         ret = self.serviceImpl.run_Snekmer_search(
             self.ctx,
             {

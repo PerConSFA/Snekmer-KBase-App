@@ -10,6 +10,7 @@ import sys
 import uuid
 from pprint import pformat
 from Bio import SeqIO
+from datetime import datetime
 
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.kb_uploadmethodsClient import kb_uploadmethods
@@ -160,12 +161,6 @@ class Snekmer:
             my_config = yaml.safe_load(file)
             my_config.update(new_params)
 
-        print("The items in the config file: ")
-        print("=" * 80)
-        for k, v in my_config.items():
-            print(k,v)
-        print("=" * 80)
-
         # save updated config.yaml to self.shared_folder and
         # start creating directory structure Snekmer needs
         with open(f"{self.shared_folder}/config.yaml", 'w') as file:
@@ -176,14 +171,17 @@ class Snekmer:
         shutil.copytree("/kb/module/data/model_output", f"{self.shared_folder}/model_output")
         print("="*80)
 
-        # Use input Genome to produce a FASTA file with the protein sequences of the CDSs
-        print('Downloading Genome input as protein FASTA file.')
+        # Use input Genomes to produce FASTA files with the protein sequences of the CDSs
+        print('Downloading Genome inputs as protein FASTA files.')
         print("=" * 80)
         genomeUtil = GenomeFileUtil(self.callback_url)
-        fasta_file = genomeUtil.genome_proteins_to_fasta({'genome_ref': object_ref})
+        fasta_files = []
+        for i in range(len(object_ref)):
+            fasta_files.append(genomeUtil.genome_proteins_to_fasta({'genome_ref': object_ref[i]}))
 
-        # save fasta to the input folder
-        shutil.copyfile(fasta_file['file_path'], f"{self.shared_folder}/input/inputfromgenome.fasta")
+        # save each protein FASTA to the input folder
+        for i in range(len(fasta_files)):
+            shutil.copy(fasta_files[i]['file_path'], f"{self.shared_folder}/input")
         print("="*80)
 
         # after self.shared_folder directory is set up, run commandline section
@@ -206,7 +204,9 @@ class Snekmer:
         output_files = list()
         output_directory = os.path.join(self.shared_folder, str(uuid.uuid4()))
         os.makedirs(output_directory)
-        result_file = os.path.join(output_directory, 'search.zip')
+        run_date = datetime.now().strftime("%Y.%m.%d-%I:%M:%S%p")
+        result_name = "SnekmerSearch" + str(k) + str(alphabet) + str(run_date) + ".zip"
+        result_file = os.path.join(output_directory, result_name)
 
         print("result directory: " + result_directory)
         print("=" * 80)

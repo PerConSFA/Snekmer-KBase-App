@@ -38,16 +38,16 @@ module Snekmer {
     Input parameters for Snekmer Search.
 
     workspace_name - the name of the workspace for input/output
-    object_ref - Genome object with Protein Translation sequence in the Feature
+    object_ref - Genome objects with Protein Translation sequence in the Feature
     k - kmer length for features
     alphabet - mapping function for reduced amino acid sequences
     min_rep_thresh - min number of sequences to include feature for prefiltering
-
     */
+    typedef string obj_ref;
 
     typedef structure {
         string workspace_name;
-        string object_ref;
+        list<obj_ref> object_ref;
         int k;
         int alphabet;
         int min_rep_thresh;
