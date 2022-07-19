@@ -62,7 +62,7 @@ class SnekmerTest(unittest.TestCase):
              'workspace_name': self.wsName,
              'object_ref': ref,
              'k': 4,
-             'alphabet': "hydro",
+             'alphabet': "miqs",
              'min_rep_thresh': 1
              }
         )
