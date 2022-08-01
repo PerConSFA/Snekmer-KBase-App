@@ -9,13 +9,17 @@ import zipfile
 import sys
 import uuid
 from pprint import pformat
+from pprint import pprint
 from Bio import SeqIO
 from datetime import datetime
+from pathlib import Path
 
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.kb_uploadmethodsClient import kb_uploadmethods
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.GenomeFileUtilClient import GenomeFileUtil
+from installed_clients.WorkspaceClient import Workspace as workspaceService
+from installed_clients.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
 
 #END_HEADER
 
@@ -37,7 +41,7 @@ class Snekmer:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/abbyjerger/Snekmer.git"
-    GIT_COMMIT_HASH = "ab41786be7cea22d5f38912c6bbb43c47072d9c7"
+    GIT_COMMIT_HASH = "6130b72f01a06694fd270930b37c2a608dff491a"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -48,6 +52,10 @@ class Snekmer:
         #BEGIN_CONSTRUCTOR
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = config['scratch']
+        self.workspaceURL = config['workspace-url']
+        self.dfu = DataFileUtil(self.callback_url)
+        self.DOTFU = KBaseDataObjectToFileUtils(self.callback_url)
+        #self.wsClient = workspaceService(self.workspaceURL, token=config['token'])
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
@@ -112,15 +120,10 @@ class Snekmer:
     def run_Snekmer_search(self, ctx, params):
         """
         run_Snekmer_search accepts some of the search params for now, and returns results in a KBaseReport
-        :param params: instance of type "SnekmerSearchParams" (Input
-           parameters for Snekmer Search. workspace_name - the name of the
-           workspace for input/output object_ref - Genome object with Protein
-           Translation sequence in the Feature k - kmer length for features
-           alphabet - mapping function for reduced amino acid sequences
-           min_rep_thresh - min number of sequences to include feature for
-           prefiltering) -> structure: parameter "workspace_name" of String,
-           parameter "object_ref" of String, parameter "k" of Long, parameter
-           "alphabet" of Long, parameter "min_rep_thresh" of Long
+        :param params: instance of type "SnekmerSearchParams" -> structure:
+           parameter "workspace_name" of String, parameter "object_ref" of
+           String, parameter "k" of Long, parameter "alphabet" of Long,
+           parameter "min_rep_thresh" of Long
         :returns: instance of type "SnekmerSearchOutput" (Output parameters
            for Snekmer Search. report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
@@ -152,6 +155,47 @@ class Snekmer:
             raise ValueError('Parameter min_rep_thresh is not set in input arguments')
         min_rep_thresh = params['min_rep_thresh']
 
+        # investigate use of GenomeSets
+        # can i turn them into protein fasta files?
+        print('object_ref from the Impl')
+        pprint(object_ref)
+
+        print('object_ref from the Impl without brackets')
+        str_obj_ref = str(object_ref[0])
+        pprint(str_obj_ref)
+
+        # get the object_ref, which should be a GenomeSet object
+        data_obj = self.dfu.get_objects({'object_refs': object_ref})['data'][0]
+        print("data_obj from the impl: ")
+        pprint(data_obj)
+
+        # find object type of object_ref
+        info = data_obj['info']
+        obj_name = str(info[1])
+        # obj_name currently should be testGenomeSet
+        file_name = obj_name
+        obj_type = info[2].split('.')[1].split('-')[0]
+        print('object type from impl: ')
+        pprint(obj_type)
+
+        maybe_name = data_obj['data']['description']
+        print("GenomeSet object's data description: ")
+        pprint(maybe_name)
+
+        GenomeSetToFASTA_params = {
+            'genomeSet_ref': str_obj_ref,
+            'file': file_name,
+            'residue_type': 'protein',
+            'feature_type': 'CDS',
+            'record_id_pattern': '%%feature_id%%',
+            'merge_fasta_files': 'FALSE'
+        }
+
+        GenomeSetToFASTA_retVal = self.DOTFU.GenomeSetToFASTA(GenomeSetToFASTA_params)
+        fasta_file_path = GenomeSetToFASTA_retVal['fasta_file_path_list']
+        print("Fasta file path: ")
+        print(fasta_file_path)
+
         # Add params from the UI to the config.yaml
         logging.info('Writing UI inputs into the config.yaml')
         new_params = {'k': k, 'alphabet': alphabet,
@@ -170,19 +214,30 @@ class Snekmer:
         # save model_outputs from data to /kb/module/work/tmp
         shutil.copytree("/kb/module/data/model_output", f"{self.shared_folder}/model_output")
         print("="*80)
+        print("Next copy protein fastas from /kb/module/work/tmp to /kb/module/work/tmp/input")
 
         # Use input Genomes to produce FASTA files with the protein sequences of the CDSs
-        print('Downloading Genome inputs as protein FASTA files.')
-        print("=" * 80)
-        genomeUtil = GenomeFileUtil(self.callback_url)
-        fasta_files = []
-        for i in range(len(object_ref)):
-            fasta_files.append(genomeUtil.genome_proteins_to_fasta({'genome_ref': object_ref[i]}))
+        #print('Downloading Genome inputs as protein FASTA files.')
+        #print("=" * 80)
+        #genomeUtil = GenomeFileUtil(self.callback_url)
+        #fasta_files = []
+        #for i in range(len(object_ref)):
+            #fasta_files.append(genomeUtil.genome_proteins_to_fasta({'genome_ref': object_ref[i]}))
 
         # save each protein FASTA to the input folder
-        for i in range(len(fasta_files)):
-            shutil.copy(fasta_files[i]['file_path'], f"{self.shared_folder}/input")
+        for i in range(len(fasta_file_path)):
+            shutil.copy(fasta_file_path[i], f"{self.shared_folder}/input")
         print("="*80)
+        print("Copied protein fastas to the input folder for the subprocess step")
+
+        # now that the protein files are in /input, change all the extensions there
+        mypath = Path(f"{self.shared_folder}/input")
+        for file in os.listdir(mypath):
+            print("Filename in loop: ", file)
+            src = os.path.join(mypath, file)
+            dst = os.path.join(mypath, file + '.faa')
+            if not os.path.exists(dst):  # check if the file doesn't exist
+                os.rename(src, dst)
 
         # after self.shared_folder directory is set up, run commandline section
         print('Run subprocess of snekmer search')

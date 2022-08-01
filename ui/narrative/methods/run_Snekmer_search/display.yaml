@@ -28,7 +28,7 @@ parameters :
         ui-name : |
             Genome
         short-hint : |
-            Genome objects with protein sequence
+            GenomeSets
     k :
         ui-name : |
             Kmer
