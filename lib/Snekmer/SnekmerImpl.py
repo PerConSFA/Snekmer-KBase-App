@@ -169,6 +169,12 @@ class Snekmer:
         print("data_obj from the impl: ")
         pprint(data_obj)
 
+        data_obj2 = self.dfu.get_objects({'object_refs': [object_ref]})['data']
+        print("data_obj2 from the impl, without the end [0] on dfu.get_objects: ")
+        pprint(data_obj2)
+
+
+
         # find object type of object_ref
         info = data_obj['info']
         obj_name = str(info[1])
@@ -190,12 +196,20 @@ class Snekmer:
             'record_id_pattern': '%%feature_id%%',
             'merge_fasta_files': 'FALSE'
         }
+        print("GenomeSetToFasta params: ")
+        pprint(GenomeSetToFASTA_params)
+
 
         GenomeSetToFASTA_retVal = self.DOTFU.GenomeSetToFASTA(GenomeSetToFASTA_params)
         fasta_file_path = GenomeSetToFASTA_retVal['fasta_file_path_list']
         print("Fasta file path: ")
         print(fasta_file_path)
 
+        genome_ref_sci_name = GenomeSetToFASTA_retVal['genome_ref_to_sci_name']
+        print("Genome references should be turned into their scientific name: ")
+        print(genome_ref_sci_name)
+
+        sys.exit()
         # Add params from the UI to the config.yaml
         logging.info('Writing UI inputs into the config.yaml')
         new_params = {'k': k, 'alphabet': alphabet,
