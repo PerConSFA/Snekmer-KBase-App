@@ -225,7 +225,7 @@ class SnekmerTest(unittest.TestCase):
         pprint(target_genomeSet_ref)
 
         parameters = {'workspace_name': self.getWsName(),
-                      'object_ref': [target_genomeSet_ref],
+                      'object_ref': target_genomeSet_ref,
                       'k': 4,
                       'alphabet': "miqs",
                       'min_rep_thresh': 1

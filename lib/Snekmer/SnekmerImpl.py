@@ -160,12 +160,12 @@ class Snekmer:
         print('object_ref from the Impl')
         pprint(object_ref)
 
-        print('object_ref from the Impl without brackets')
-        str_obj_ref = str(object_ref[0])
-        pprint(str_obj_ref)
+        #print('object_ref from the Impl without brackets')
+        #str_obj_ref = str(object_ref[0])
+        #pprint(str_obj_ref)
 
         # get the object_ref, which should be a GenomeSet object
-        data_obj = self.dfu.get_objects({'object_refs': object_ref})['data'][0]
+        data_obj = self.dfu.get_objects({'object_refs': [object_ref]})['data'][0]
         print("data_obj from the impl: ")
         pprint(data_obj)
 
@@ -183,7 +183,7 @@ class Snekmer:
         pprint(maybe_name)
 
         GenomeSetToFASTA_params = {
-            'genomeSet_ref': str_obj_ref,
+            'genomeSet_ref': object_ref,
             'file': file_name,
             'residue_type': 'protein',
             'feature_type': 'CDS',
