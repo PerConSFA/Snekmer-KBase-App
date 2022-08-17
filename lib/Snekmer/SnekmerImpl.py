@@ -55,7 +55,7 @@ class Snekmer:
         self.workspaceURL = config['workspace-url']
         self.dfu = DataFileUtil(self.callback_url)
         self.DOTFU = KBaseDataObjectToFileUtils(self.callback_url)
-        #self.wsClient = workspaceService(self.workspaceURL, token=config['token'])
+        self.wsClient = workspaceService(self.workspaceURL)
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
@@ -160,40 +160,30 @@ class Snekmer:
         print('object_ref from the Impl')
         pprint(object_ref)
 
-        #print('object_ref from the Impl without brackets')
-        #str_obj_ref = str(object_ref[0])
-        #pprint(str_obj_ref)
+        genomeSet_object = self.wsClient.get_objects2({'objects': [{'ref': object_ref}]})['data'][0]['data']
+        print("genomeSet_object, which is what GenomeSetToFasta grabs too: ")
+        pprint(genomeSet_object)
+        print("=" * 80)
 
-        # get the object_ref, which should be a GenomeSet object
-        data_obj = self.dfu.get_objects({'object_refs': [object_ref]})['data'][0]
-        print("data_obj from the impl: ")
-        pprint(data_obj)
+        #genome_ids = genomeSet_object['elements'].keys()
+        genome_ids = list(genomeSet_object['elements'])
+        print("genome_ids now as list, before the for loop: ")
+        pprint(genome_ids)
+        print("=" * 80)
+        print("length of genome_ids: ", len(genome_ids))
+        print("range length of genome_ids: ", range(len(genome_ids)))
 
-        data_obj2 = self.dfu.get_objects({'object_refs': [object_ref]})['data']
-        print("data_obj2 from the impl, without the end [0] on dfu.get_objects: ")
-        pprint(data_obj2)
+        for genome_i in range(len(genome_ids)):
+            genome_id = genome_ids[genome_i]
+            print("genome_id from in the loop: ", genome_id)
 
-
-
-        # find object type of object_ref
-        info = data_obj['info']
-        obj_name = str(info[1])
-        # obj_name currently should be testGenomeSet
-        file_name = obj_name
-        obj_type = info[2].split('.')[1].split('-')[0]
-        print('object type from impl: ')
-        pprint(obj_type)
-
-        maybe_name = data_obj['data']['description']
-        print("GenomeSet object's data description: ")
-        pprint(maybe_name)
 
         GenomeSetToFASTA_params = {
             'genomeSet_ref': object_ref,
-            'file': file_name,
+
             'residue_type': 'protein',
             'feature_type': 'CDS',
-            'record_id_pattern': '%%feature_id%%',
+
             'merge_fasta_files': 'FALSE'
         }
         print("GenomeSetToFasta params: ")
@@ -202,14 +192,33 @@ class Snekmer:
 
         GenomeSetToFASTA_retVal = self.DOTFU.GenomeSetToFASTA(GenomeSetToFASTA_params)
         fasta_file_path = GenomeSetToFASTA_retVal['fasta_file_path_list']
+        print("=" * 80)
         print("Fasta file path: ")
         print(fasta_file_path)
 
+        # need to rename fasta files since GenomeSetToFasta doesn't use the Genome object's sciname
         genome_ref_sci_name = GenomeSetToFASTA_retVal['genome_ref_to_sci_name']
         print("Genome references should be turned into their scientific name: ")
         print(genome_ref_sci_name)
 
         sys.exit()
+        not_string = [x.strip('') for x in fasta_file_path]
+        print("These file paths should not be within quotes: ")
+        print(not_string)
+
+        new = []
+        for i in not_string:
+            new[i] = os.path.basename(i)
+        print("Fasta file names with extension still: ")
+        print(new)
+
+        no_ext = []
+        for i in new:
+            no_ext[i] = os.path.splitext(i)[0]
+        print("Fasta files names without extension: ")
+        print(no_ext)
+
+        #sys.exit()
         # Add params from the UI to the config.yaml
         logging.info('Writing UI inputs into the config.yaml')
         new_params = {'k': k, 'alphabet': alphabet,
