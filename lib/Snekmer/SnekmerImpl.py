@@ -155,40 +155,21 @@ class Snekmer:
             raise ValueError('Parameter min_rep_thresh is not set in input arguments')
         min_rep_thresh = params['min_rep_thresh']
 
-        # investigate use of GenomeSets
-        # can i turn them into protein fasta files?
-        print('object_ref from the Impl')
-        pprint(object_ref)
-
-        genomeSet_object = self.wsClient.get_objects2({'objects': [{'ref': object_ref}]})['data'][0]['data']
-        print("genomeSet_object, which is what GenomeSetToFasta grabs too: ")
-        pprint(genomeSet_object)
-        print("=" * 80)
-
-        #genome_ids = genomeSet_object['elements'].keys()
-        genome_ids = list(genomeSet_object['elements'])
-        print("genome_ids now as list, before the for loop: ")
-        pprint(genome_ids)
-        print("=" * 80)
-        print("length of genome_ids: ", len(genome_ids))
-        print("range length of genome_ids: ", range(len(genome_ids)))
-
-        for genome_i in range(len(genome_ids)):
-            genome_id = genome_ids[genome_i]
-            print("genome_id from in the loop: ", genome_id)
-
+        # get GenomeSet name to add into protein fasta file names
+        data_obj = self.dfu.get_objects({'object_refs': [object_ref]})['data'][0]
+        info = data_obj['info']
+        obj_name = str(info[1])
 
         GenomeSetToFASTA_params = {
             'genomeSet_ref': object_ref,
-
+            'file': obj_name,
             'residue_type': 'protein',
             'feature_type': 'CDS',
-
+            'record_id_pattern': '%%feature_id%%',
             'merge_fasta_files': 'FALSE'
         }
         print("GenomeSetToFasta params: ")
         pprint(GenomeSetToFASTA_params)
-
 
         GenomeSetToFASTA_retVal = self.DOTFU.GenomeSetToFASTA(GenomeSetToFASTA_params)
         fasta_file_path = GenomeSetToFASTA_retVal['fasta_file_path_list']
@@ -201,24 +182,6 @@ class Snekmer:
         print("Genome references should be turned into their scientific name: ")
         print(genome_ref_sci_name)
 
-        sys.exit()
-        not_string = [x.strip('') for x in fasta_file_path]
-        print("These file paths should not be within quotes: ")
-        print(not_string)
-
-        new = []
-        for i in not_string:
-            new[i] = os.path.basename(i)
-        print("Fasta file names with extension still: ")
-        print(new)
-
-        no_ext = []
-        for i in new:
-            no_ext[i] = os.path.splitext(i)[0]
-        print("Fasta files names without extension: ")
-        print(no_ext)
-
-        #sys.exit()
         # Add params from the UI to the config.yaml
         logging.info('Writing UI inputs into the config.yaml')
         new_params = {'k': k, 'alphabet': alphabet,
@@ -239,29 +202,31 @@ class Snekmer:
         print("="*80)
         print("Next copy protein fastas from /kb/module/work/tmp to /kb/module/work/tmp/input")
 
-        # Use input Genomes to produce FASTA files with the protein sequences of the CDSs
-        #print('Downloading Genome inputs as protein FASTA files.')
-        #print("=" * 80)
-        #genomeUtil = GenomeFileUtil(self.callback_url)
-        #fasta_files = []
-        #for i in range(len(object_ref)):
-            #fasta_files.append(genomeUtil.genome_proteins_to_fasta({'genome_ref': object_ref[i]}))
-
         # save each protein FASTA to the input folder
         for i in range(len(fasta_file_path)):
             shutil.copy(fasta_file_path[i], f"{self.shared_folder}/input")
         print("="*80)
         print("Copied protein fastas to the input folder for the subprocess step")
 
-        # now that the protein files are in /input, change all the extensions there
+        # now that the protein files are in /input
+        # remove .params, replace with sci name, and then add .faa extension
         mypath = Path(f"{self.shared_folder}/input")
-        for file in os.listdir(mypath):
-            print("Filename in loop: ", file)
-            src = os.path.join(mypath, file)
-            dst = os.path.join(mypath, file + '.faa')
-            if not os.path.exists(dst):  # check if the file doesn't exist
-                os.rename(src, dst)
-
+        for file, i in zip(os.listdir(mypath), genome_ref_sci_name.values()):
+            print("Filename in beginning of loop: ", file)
+            new_file = file.split('.', 1)[0]
+            print("Filename when everything after first period is removed: ", new_file)
+            print("genome_ref_sci_name: ", i)
+            new_file += "."
+            new_file += i
+            print("Filename after adding sci name: ", new_file)
+            new_file += ".faa"
+            print("Filename after adding .faa extension", new_file)
+            old = os.path.join(mypath, file)
+            new = os.path.join(mypath, new_file)
+            if not os.path.exists(new):  # check if the file doesn't exist
+                os.rename(old, new)
+            print("=" * 80)
+            
         # after self.shared_folder directory is set up, run commandline section
         print('Run subprocess of snekmer search')
         print("=" * 80)
