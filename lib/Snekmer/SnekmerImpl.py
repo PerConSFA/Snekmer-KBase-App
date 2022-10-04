@@ -155,11 +155,19 @@ class Snekmer:
             raise ValueError('Parameter min_rep_thresh is not set in input arguments')
         min_rep_thresh = params['min_rep_thresh']
 
+        # testing diff between dfu.get_objects and wsClient.get_objects2 (which is used in GenomeSetToFasta)
+        obj_dfu_get_obj = self.dfu.get_objects({'object_refs': [object_ref]})
+        print("Using DataFileUtil.get_objects: ", obj_dfu_get_obj)
+
+        obj_ws_get_obj2 = self.wsClient.get_objects2({'objects': [{'ref': object_ref}]})
+        print("Using WorkspaceClient.get_objects2: ", obj_ws_get_obj2)
+
         # get GenomeSet name to add into protein fasta file names
         data_obj = self.dfu.get_objects({'object_refs': [object_ref]})['data'][0]
         info = data_obj['info']
         obj_name = str(info[1])
 
+        print('data_obj data for the GenomeSet:', data_obj)
         GenomeSetToFASTA_params = {
             'genomeSet_ref': object_ref,
             'file': obj_name,
@@ -171,6 +179,7 @@ class Snekmer:
         print("GenomeSetToFasta params: ")
         pprint(GenomeSetToFASTA_params)
 
+        print("Calling GenomeSetToFasta: ")
         GenomeSetToFASTA_retVal = self.DOTFU.GenomeSetToFASTA(GenomeSetToFASTA_params)
         fasta_file_path = GenomeSetToFASTA_retVal['fasta_file_path_list']
         print("=" * 80)
@@ -181,6 +190,11 @@ class Snekmer:
         genome_ref_sci_name = GenomeSetToFASTA_retVal['genome_ref_to_sci_name']
         print("Genome references should be turned into their scientific name: ")
         print(genome_ref_sci_name)
+
+        genomeSet_object = self.wsClient.get_objects2({'objects': [{'ref': object_ref}]})['data'][0]['data']
+        #genomeSet_object['elements'].keys()
+        print("=" * 80)
+        print("genomeSet_object: ", genomeSet_object)
 
         # Add params from the UI to the config.yaml
         logging.info('Writing UI inputs into the config.yaml')
@@ -226,7 +240,7 @@ class Snekmer:
             if not os.path.exists(new):  # check if the file doesn't exist
                 os.rename(old, new)
             print("=" * 80)
-            
+
         # after self.shared_folder directory is set up, run commandline section
         print('Run subprocess of snekmer search')
         print("=" * 80)
