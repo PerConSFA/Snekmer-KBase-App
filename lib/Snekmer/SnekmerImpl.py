@@ -13,6 +13,7 @@ from pprint import pprint
 from Bio import SeqIO
 from datetime import datetime
 from pathlib import Path
+import pandas as pd
 
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.kb_uploadmethodsClient import kb_uploadmethods
@@ -136,7 +137,6 @@ class Snekmer:
 
         # Print statements to stdout/stderr are captured and available as the App log
         logging.info('Starting run_Snekmer_search function. Params=' + pformat(params))
-
         # Check inputs
         logging.info('Validating parameters.')
         if 'object_ref' not in params:
@@ -195,7 +195,6 @@ class Snekmer:
         #genomeSet_object['elements'].keys()
         print("=" * 80)
         print("genomeSet_object: ", genomeSet_object)
-
         # Add params from the UI to the config.yaml
         logging.info('Writing UI inputs into the config.yaml')
         new_params = {'k': k, 'alphabet': alphabet,

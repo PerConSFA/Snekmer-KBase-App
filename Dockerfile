@@ -14,12 +14,16 @@ RUN git clone --branch v0.1.2-beta https://github.com/PNNL-CompBio/Snekmer.git &
 FROM kbase/sdkbase2:python
 MAINTAINER KBase Developer
 
-#WORKDIR /kb/module
-# mamba env section
+# share packages from the mambasetup stage build
 COPY --from=mambasetup /opt/conda/. /opt/conda/
 ENV PATH /opt/conda/bin:$PATH
 
-# kbase sdk code for wrapper
+# the path variable will be changed to use the mambasetup packages, not the original kbase packages,
+# so reinstall the packages the kbase code needs
+RUN conda install nose
+RUN pip install -q jsonrpcbase
+
+# kbase sdk code
 COPY ./ /kb/module
 RUN mkdir -p /kb/module/work
 RUN chmod -R a+rw /kb/module
