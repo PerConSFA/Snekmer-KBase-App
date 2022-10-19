@@ -5,7 +5,7 @@
 
 # in order to use custom python version and packages instead of kbase offered ones,
 # update path here to match what the Dockerfile tried to change it to
-PATH=/opt/conda/bin:$PATH
+PATH=/opt/conda/envs/snekmer/bin:$PATH
 
 python ./scripts/prepare_deploy_cfg.py ./deploy.cfg ./work/config.properties
 

@@ -1,27 +1,17 @@
-# create multi-stage build starting with mambaforge image that has all needed snekmer packages
-# might want to upgrade pip (if not in environment.yml)
+# use multi-stage build to install snekmer and avoid package dependency issues
+# environment.yml needs to be updated manually if the snekmer version is updated here
 FROM condaforge/mambaforge:latest AS mambasetup
-RUN git clone --branch v0.1.2-beta https://github.com/PNNL-CompBio/Snekmer.git && \
-    mamba env update -n base -f ./Snekmer/environment.yml && \
-    pip install opencv-python  && \
-    apt update && apt install -y libsm6 libxext6 && \
-    apt-get install -y libxrender-dev && \
-    pip install Snekmer/.
+COPY ./environment.yml .
+RUN mamba env create -f ./environment.yml
 
-# combine mambaforge build into kbase image
-# later might be able to use kbase/sdkbase2:latest since its smaller than :python,
-# but I initialized module as python so the tests don't work with :latest
+# combine mambasetup build into kbase image
 FROM kbase/sdkbase2:python
 MAINTAINER KBase Developer
 
 # share packages from the mambasetup stage build
-COPY --from=mambasetup /opt/conda/. /opt/conda/
-ENV PATH /opt/conda/bin:$PATH
-
-# the path variable will be changed to use the mambasetup packages, not the original kbase packages,
-# so reinstall the packages the kbase code needs
-RUN conda install nose
-RUN pip install -q jsonrpcbase
+# the path must also be updated in the entrypoint.sh
+COPY --from=mambasetup /opt/conda/envs/snekmer/. /opt/conda/envs/snekmer/
+ENV PATH /opt/conda/envs/snekmer/bin:$PATH
 
 # kbase sdk code
 COPY ./ /kb/module
@@ -31,6 +21,3 @@ WORKDIR /kb/module
 RUN make all
 ENTRYPOINT [ "./scripts/entrypoint.sh" ]
 CMD [ ]
-
-
-
