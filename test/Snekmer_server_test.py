@@ -168,8 +168,7 @@ class SnekmerTest(unittest.TestCase):
              'workspace_name': self.wsName,
              'object_ref': ref,
              'k': 4,
-             'alphabet': "miqs",
-             'min_rep_thresh': 1
+             'alphabet': "miqs"
              }
         )
         # print(result)
@@ -227,8 +226,7 @@ class SnekmerTest(unittest.TestCase):
         parameters = {'workspace_name': self.getWsName(),
                       'object_ref': target_genomeSet_ref,
                       'k': 4,
-                      'alphabet': "miqs",
-                      'min_rep_thresh': 1
+                      'alphabet': "miqs"
                       }
 
         ret = self.getImpl().run_Snekmer_search(self.getContext(), parameters)[0]

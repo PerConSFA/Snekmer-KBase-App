@@ -39,11 +39,6 @@ parameters :
             Alphabet
         short-hint : |
             Mapping function for reduced amino acid alphabets
-    min_rep_thresh :
-        ui-name : |
-            Min. Representation Threshold
-        short-hint : |
-            Minimum number of sequences to include feature for prefiltering
 
 description : |
     <p>Snekmer Search app </p>

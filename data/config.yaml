@@ -1,14 +1,23 @@
-processes: 4
-file_extensions: ['fasta', 'fna', 'faa', 'fa']
-model_dir: "/kb/module/work/tmp/model_output/model/"
-basis_dir: "/kb/module/work/tmp/model_output/labels/"
-score_dir: "/kb/module/work/tmp/model_output/score/"
-nested_dir: False
-start: False
-end: False
-nucleotide: False
-randomize_alphabet: False
-regex: "[a-z]{3}[A-Z]{1}"
-verbose: False
-walk: False
-mode: None
+# snekmer search main
+# commit 2ca0bb84fd4be1d7e558e2b548f738b5b104dbe9
+# input/output params
+input_file_exts: ["fasta", "fna", "faa", "fa"] # specify valid input file extensions
+input_file_regex: ".*" # regex to parse family from filename
+nested_output: False # if True, saves into {save_dir}/{alphabet name}/{k}
+
+# scoring params
+score:
+  scaler: True
+  scaler_kwargs: { "n": 0.25 }
+  labels: None
+  lname: None # label name
+
+# search params
+#model_dir: "/kb/module/work/tmp/model_output/model/"
+#basis_dir: "/kb/module/work/tmp/model_output/labels/"
+#score_dir: "/kb/module/work/tmp/model_output/score/"
+
+# for testing
+model_dir: "/kb/module/work/tmp/small_test_model_output/model/"
+basis_dir: "/kb/module/work/tmp/small_test_model_output/kmerize/"
+score_dir: "/kb/module/work/tmp/small_test_model_output/scoring/"

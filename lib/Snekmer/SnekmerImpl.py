@@ -42,7 +42,7 @@ class Snekmer:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/abbyjerger/Snekmer.git"
-    GIT_COMMIT_HASH = "6130b72f01a06694fd270930b37c2a608dff491a"
+    GIT_COMMIT_HASH = "34a4d55cd05537d6b09cb9e6cc01d2a740413aea"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -123,8 +123,7 @@ class Snekmer:
         run_Snekmer_search accepts some of the search params for now, and returns results in a KBaseReport
         :param params: instance of type "SnekmerSearchParams" -> structure:
            parameter "workspace_name" of String, parameter "object_ref" of
-           String, parameter "k" of Long, parameter "alphabet" of Long,
-           parameter "min_rep_thresh" of Long
+           String, parameter "k" of Long, parameter "alphabet" of Long
         :returns: instance of type "SnekmerSearchOutput" (Output parameters
            for Snekmer Search. report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
@@ -134,7 +133,6 @@ class Snekmer:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_Snekmer_search
-
         # Print statements to stdout/stderr are captured and available as the App log
         logging.info('Starting run_Snekmer_search function. Params=' + pformat(params))
         # Check inputs
@@ -151,9 +149,6 @@ class Snekmer:
         if 'alphabet' not in params:
             raise ValueError('Parameter alphabet is not set in input arguments')
         alphabet = params['alphabet']
-        if 'min_rep_thresh' not in params:
-            raise ValueError('Parameter min_rep_thresh is not set in input arguments')
-        min_rep_thresh = params['min_rep_thresh']
 
         # testing diff between dfu.get_objects and wsClient.get_objects2 (which is used in GenomeSetToFasta)
         obj_dfu_get_obj = self.dfu.get_objects({'object_refs': [object_ref]})
@@ -197,9 +192,7 @@ class Snekmer:
         print("genomeSet_object: ", genomeSet_object)
         # Add params from the UI to the config.yaml
         logging.info('Writing UI inputs into the config.yaml')
-        new_params = {'k': k, 'alphabet': alphabet,
-                      'min_rep_thresh': min_rep_thresh
-                      }
+        new_params = {'k': k, 'alphabet': alphabet}
         with open('/kb/module/data/config.yaml', 'r') as file:
             my_config = yaml.safe_load(file)
             my_config.update(new_params)
@@ -211,7 +204,9 @@ class Snekmer:
         os.makedirs(f"{self.shared_folder}/input")
 
         # save model_outputs from data to /kb/module/work/tmp
-        shutil.copytree("/kb/module/data/model_output", f"{self.shared_folder}/model_output")
+        #shutil.copytree("/kb/module/data/model_output", f"{self.shared_folder}/model_output")
+        # faster testing
+        shutil.copytree("/kb/module/data/small_test_model_output", f"{self.shared_folder}/small_test_model_output")
         print("="*80)
         print("Next copy protein fastas from /kb/module/work/tmp to /kb/module/work/tmp/input")
 
@@ -277,7 +272,7 @@ class Snekmer:
                              allowZip64=True) as zip_file:
             for root, dirs, files in os.walk(result_directory):
                 for file in files:
-                    if file.endswith('.csv') or file.endswith('.png'):
+                    if file.endswith('.csv'):
                         zip_file.write(os.path.join(root, file),
                                        os.path.join(os.path.basename(root), file))
 

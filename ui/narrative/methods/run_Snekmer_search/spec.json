@@ -64,17 +64,6 @@
                     "value": "None"
                 }]
             }
-        },
-        {
-            "id": "min_rep_thresh",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "" ],
-            "field_type": "text",
-            "text_options": {
-                "validate_as": "int"
-            }
         }
     ],
 
@@ -100,10 +89,6 @@
                 {
                     "input_parameter": "alphabet",
                     "target_property": "alphabet"
-                },
-                {
-                    "input_parameter": "min_rep_thresh",
-                    "target_property": "min_rep_thresh"
                 }
             ],
             "output_mapping": [
