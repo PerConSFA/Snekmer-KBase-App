@@ -238,7 +238,7 @@ class Snekmer:
         # after self.shared_folder directory is set up, run commandline section
         print('Run subprocess of snekmer search')
         print("=" * 80)
-        cmd_string = "snekmer search --unlock"
+        cmd_string = "snekmer search"
         cmd_process = subprocess.Popen(cmd_string, stdout=subprocess.PIPE,
                                        stderr=subprocess.STDOUT, cwd=self.shared_folder,
                                        shell=True)
