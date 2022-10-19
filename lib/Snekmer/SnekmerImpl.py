@@ -238,7 +238,7 @@ class Snekmer:
         # after self.shared_folder directory is set up, run commandline section
         print('Run subprocess of snekmer search')
         print("=" * 80)
-        cmd_string = "snekmer search"
+        cmd_string = "snekmer search --unlock"
         cmd_process = subprocess.Popen(cmd_string, stdout=subprocess.PIPE,
                                        stderr=subprocess.STDOUT, cwd=self.shared_folder,
                                        shell=True)
@@ -306,13 +306,15 @@ class Snekmer:
         print("Prep params for report: ")
 
         genomes_run = list(data_obj['data']['elements'].keys())
-        report_message = ("Kmer input:{0}\n",
-                          "Alphabet:{1}\n",
-                          "Genomes run:{2}\n",
-                          "Unique number of sequences:{3}\n",
-                          "Total number of sequences:{4}\n ",
-                          "Sequences in a family:\n{5}",
-                          ).format(str(k), alphabet, genomes_run, unique_seq, total_seq, TF_counts)
+        report_message = "Kmer input: {0}\n" \
+                         "Alphabet: {1}\n" \
+                         "Genomes run: {2}\n" \
+                         "Unique number of sequences: {3}\n" \
+                         "Total number of sequences: {4}\n" \
+                         "Sequences in a family: \n{5}".format(str(k), alphabet, genomes_run,
+                                                               unique_seq, total_seq, TF_counts)
+        print("Report message:")
+        print(report_message)
 
         # Build a Report and return
         print('Section: build report data.')
