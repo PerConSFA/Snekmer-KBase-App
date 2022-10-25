@@ -297,7 +297,8 @@ class Snekmer:
 
         unique_seq = len(pd.unique(combined_csv['sequence_id']))
         total_seq = len(combined_csv.index)
-        TF_counts = combined_csv['in_family'].value_counts()
+        TF_counts = combined_csv['in_family'].value_counts().to_frame()
+        TF_counts = TF_counts.rename(columns={'in_family': 'Count'})
         print()
         print(TF_counts)
 
@@ -309,8 +310,8 @@ class Snekmer:
         report_message = "Kmer input: {0}\n" \
                          "Alphabet: {1}\n" \
                          "Genomes run: {2}\n" \
-                         "Unique number of sequences: {3}\n" \
-                         "Total number of sequences: {4}\n" \
+                         "Number of sequences: {3}\n" \
+                         "Number of searches: {4}\n\n" \
                          "Sequences in a family: \n{5}".format(str(k), alphabet, genomes_run,
                                                                unique_seq, total_seq, TF_counts)
         print("Report message:")
