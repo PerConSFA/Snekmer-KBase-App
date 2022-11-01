@@ -21,6 +21,7 @@ from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.GenomeFileUtilClient import GenomeFileUtil
 from installed_clients.WorkspaceClient import Workspace as workspaceService
 from installed_clients.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
+from installed_clients.GenomeAnnotationAPIClient import GenomeAnnotationAPI
 
 #END_HEADER
 
@@ -57,6 +58,8 @@ class Snekmer:
         self.dfu = DataFileUtil(self.callback_url)
         self.DOTFU = KBaseDataObjectToFileUtils(self.callback_url)
         self.wsClient = workspaceService(self.workspaceURL)
+        self.genome_api = GenomeAnnotationAPI(self.callback_url)
+        self.gfu = GenomeFileUtil(self.callback_url)
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
@@ -153,10 +156,61 @@ class Snekmer:
         # testing diff between dfu.get_objects and wsClient.get_objects2 (which is used in GenomeSetToFasta)
         obj_dfu_get_obj = self.dfu.get_objects({'object_refs': [object_ref]})
         print("Using DataFileUtil.get_objects: ", obj_dfu_get_obj)
+        print("")
 
+        # accessing different parts of dfu.get_objects output
+        dfu_elements = obj_dfu_get_obj['data'][0]['data']['elements']
+        print("dfu_elements: ", dfu_elements)
+        print("")
+        dfu_keys = list(dfu_elements)
+        # prints the scientific name (at least when testing locally)
+        print("dfu_keys should be the genome_ids: ", dfu_keys)
+
+        refs = []
+        for i in dfu_keys:
+            refs.append(dfu_elements[i]['ref'])
+        # prints the reference ids (only) for the genomes within the genomeset
+        print("list of genome refs in the genome_set: ", refs)
+        print(refs[0])
+
+        ref_list = list(dfu_elements.values())
+        print("")
+        print("ref_list: ", ref_list)
+        print("")
+
+        # testing use of genome_api
+        genome_data = []
+        for i in refs:
+            print('made it into the loop for ', i)
+            genome_data.append(self.genome_api.get_genome_v1({"genomes": [{"ref": i}],
+                                                'downgrade': 0})["genomes"][0])
+
+        print("")
+        print("genome_data length: ", len(genome_data))
+
+        #for i in genome_data:
+         #   print("look at some functions: ", i["data"]["features"][0]["functions"])
+        print("first genome, first five functions original ")
+        print("")
+
+        # look at feature functions for one genome, before and after adding to the function list
+        for i in range(5):
+            print(genome_data[0]['data']["features"][i]["functions"])
+            genome_data[0]['data']["features"][i]["functions"].append("Added by Abby")
+            print(genome_data[0]['data']["features"][i]["functions"])
+            print("")
+
+        print("")
+        # did the functions stay appended? yes!
+        print("after functions were appended: ")
+        for i in range(5):
+            print(genome_data[0]['data']["features"][i]["functions"])
+            print("")
+
+
+        sys.exit()
         obj_ws_get_obj2 = self.wsClient.get_objects2({'objects': [{'ref': object_ref}]})
         print("Using WorkspaceClient.get_objects2: ", obj_ws_get_obj2)
-
         # get GenomeSet name to add into protein fasta file names
         data_obj = self.dfu.get_objects({'object_refs': [object_ref]})['data'][0]
         info = data_obj['info']
