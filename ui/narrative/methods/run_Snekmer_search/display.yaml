@@ -39,6 +39,11 @@ parameters :
             Alphabet
         short-hint : |
             Mapping function for reduced amino acid alphabets
+    output_genome_name:
+        ui-name: |
+            Output genome
+        short-hint: |
+            The name under which the resulting Genome will be saved in the Narrative
 
 description : |
     <p>Snekmer Search app </p>

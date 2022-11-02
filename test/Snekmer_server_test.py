@@ -226,7 +226,8 @@ class SnekmerTest(unittest.TestCase):
         parameters = {'workspace_name': self.getWsName(),
                       'object_ref': target_genomeSet_ref,
                       'k': 4,
-                      'alphabet': "miqs"
+                      'alphabet': "miqs",
+                      'output_genome_name': 'TheOutPutGenomeName'
                       }
 
         ret = self.getImpl().run_Snekmer_search(self.getContext(), parameters)[0]

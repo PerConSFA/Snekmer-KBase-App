@@ -64,6 +64,18 @@
                     "value": "None"
                 }]
             }
+        },
+        {
+            "id": "output_genome_name",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [""],
+            "field_type": "text",
+            "text_options": {
+                "valid_ws_types" : [ "KBaseGenomes.Genome" ],
+                "is_output_name": true
+            }
         }
     ],
 
@@ -89,12 +101,16 @@
                 {
                     "input_parameter": "alphabet",
                     "target_property": "alphabet"
+                },
+                {
+                    "input_parameter": "output_genome_name",
+                    "target_property": "output_genome_name"
                 }
             ],
             "output_mapping": [
                 {
                     "narrative_system_variable": "workspace",
-                    "target_property": "workspace_name"
+                    "target_property": "ws"
                 },
                 {
                     "service_method_output_path": [0,"report_name"],

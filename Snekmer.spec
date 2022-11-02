@@ -41,6 +41,7 @@ module Snekmer {
     object_ref - GenomeSet
     k - kmer length for features
     alphabet - mapping function for reduced amino acid sequences
+    output_genome_name - output object name
     */
     typedef string obj_ref;
 
@@ -49,6 +50,7 @@ module Snekmer {
         string object_ref;
         int k;
         int alphabet;
+        string output_genome_name;
     } SnekmerSearchParams;
 
     /*
