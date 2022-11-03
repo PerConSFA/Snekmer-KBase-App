@@ -237,17 +237,20 @@ class Snekmer:
         report_message = "The annotation of one genome, for the first 5 features, was successful"
         # temporary report section, to return the (incorrectly) annotated genome
         print('Section: build report data.')
+        print("")
         report_params = {
             'message': report_message,
             'workspace_name': workspace_name,
-            'objects_created': [[{"ref": genome_ref, "description": "Annotated genome by Abby!"}]]
+            'objects_created': [{"ref": genome_ref, "description": "Annotated genome by Abby!"}]
         }
+        print("report_params: ", report_params, "\n")
 
         report_client = KBaseReport(self.callback_url)
         report_info = report_client.create_extended_report(report_params)
-
+        print("report info: ", report_info, "\n")
         # construct the output to send back
         output = {'report_name': report_info['name'], 'report_ref': report_info['ref']}
+        #END run_Snekmer_search
 
         # At some point might do deeper type checking...
         if not isinstance(output, dict):
