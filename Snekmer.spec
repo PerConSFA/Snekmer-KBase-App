@@ -4,6 +4,12 @@ A KBase module: Snekmer
 
 module Snekmer {
     /*
+        Reference to a Genome object in the workspace
+        @id ws KBaseGenomes.Genome
+    */
+    typedef string genome_ref;
+
+    /*
     Input parameters for Snekmer Model.
 
     workspace_name - the name of the workspace for input/output
@@ -63,6 +69,7 @@ module Snekmer {
     typedef structure {
         string report_name;
         string report_ref;
+        genome_ref output_genome_ref;
     } SnekmerSearchOutput;
 
 

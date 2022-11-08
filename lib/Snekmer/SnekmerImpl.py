@@ -43,7 +43,7 @@ class Snekmer:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/abbyjerger/Snekmer.git"
-    GIT_COMMIT_HASH = "66e9a0cf42f8337fc07379781297dc9e88043c0e"
+    GIT_COMMIT_HASH = "ca751677be245833f13674fdbc5e41a9c53bdb6e"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -132,7 +132,9 @@ class Snekmer:
            for Snekmer Search. report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
            reference of the report.) -> structure: parameter "report_name" of
-           String, parameter "report_ref" of String
+           String, parameter "report_ref" of String, parameter
+           "output_genome_ref" of type "genome_ref" (Reference to a Genome
+           object in the workspace @id ws KBaseGenomes.Genome)
         """
         # ctx is the context object
         # return variables are: output
@@ -249,7 +251,7 @@ class Snekmer:
         report_info = report_client.create_extended_report(report_params)
         print("report info: ", report_info, "\n")
         # construct the output to send back
-        output = {'report_name': report_info['name'], 'report_ref': report_info['ref']}
+        output = {'output_genome_ref': genome_ref, 'report_name': report_info['name'], 'report_ref': report_info['ref']}
         #END run_Snekmer_search
 
         # At some point might do deeper type checking...
@@ -258,9 +260,6 @@ class Snekmer:
                              'output is not type dict as required.')
         # return the results
         return [output]
-
-
-
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",
