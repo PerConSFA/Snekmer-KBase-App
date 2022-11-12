@@ -199,6 +199,15 @@ class Snekmer:
         print("first genome, first five functions original ")
         print("")
 
+        print("data type of genome_data: ", type(genome_data), "\n")
+        print("genome_data[0].keys(): ", genome_data[0].keys(), "\n")
+        print("genome_data[0]['info']: ", genome_data[0]['info'], "\n")
+        print("genome_data[0]['data'].keys(): ", genome_data[0]['data'].keys(), "\n")
+        print("genome_data[0]['data']['features'][0]: ", genome_data[0]['data']['features'][0], "\n")
+        print("genome_data[0]['data']['features'][0]['functions']: ",
+              genome_data[0]['data']['features'][0]['functions'], "\n")
+
+        sys.exit()
         # look at feature functions for one genome, before and after adding to the function list
         for i in range(5):
             print(genome_data[0]['data']["features"][i]["functions"])
