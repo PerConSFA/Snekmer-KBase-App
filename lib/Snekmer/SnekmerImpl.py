@@ -204,8 +204,22 @@ class Snekmer:
         print("genome_data[0]['info']: ", genome_data[0]['info'], "\n")
         print("genome_data[0]['data'].keys(): ", genome_data[0]['data'].keys(), "\n")
         print("genome_data[0]['data']['features'][0]: ", genome_data[0]['data']['features'][0], "\n")
-        print("genome_data[0]['data']['features'][0]['functions']: ",
-              genome_data[0]['data']['features'][0]['functions'], "\n")
+
+        # functions has a list in it already, append
+        if 'functions' in genome_data[0]['data']['features'][0]:
+            print("list- genome_data has functions: ", genome_data[0]['data']['features'][0]['functions'], "\n")
+            genome_data[0]['data']['features'][0]['functions'].append('Abby added this')
+            print("after Abby appended to 'functions': ", genome_data[0]['data']['features'][0]['functions'], "\n")
+
+        # function is a str, not list yet
+        # turn into list, then append to it
+        if 'function' in genome_data[0]['data']['features'][0]:
+            print("str- genome_data has function: ", genome_data[0]['data']['features'][0]['function'], "\n")
+            genome_data[0]['data']['features'][0]['function'] = [genome_data[0]['data']['features'][0]['function']]
+            genome_data[0]['data']['features'][0]['function'].append('Abby added this')
+            print("after Abby appended to 'function': ", genome_data[0]['data']['features'][0]['function'], "\n")
+
+
 
         sys.exit()
         # look at feature functions for one genome, before and after adding to the function list
