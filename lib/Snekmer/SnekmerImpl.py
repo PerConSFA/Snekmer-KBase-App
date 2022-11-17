@@ -205,45 +205,31 @@ class Snekmer:
         print("genome_data[0]['data'].keys(): ", genome_data[0]['data'].keys(), "\n")
         print("genome_data[0]['data']['features'][0]: ", genome_data[0]['data']['features'][0], "\n")
 
-        # functions has a list in it already, append
-        if 'functions' in genome_data[0]['data']['features'][0]:
-            print("list- genome_data has functions: ", genome_data[0]['data']['features'][0]['functions'], "\n")
-            genome_data[0]['data']['features'][0]['functions'].append('Abby added this')
-            print("after Abby appended to 'functions': ", genome_data[0]['data']['features'][0]['functions'], "\n")
-
-        # function is a str, not list yet
-        # turn into list, then append to it
-        if 'function' in genome_data[0]['data']['features'][0]:
-            print("str- genome_data has function: ", genome_data[0]['data']['features'][0]['function'], "\n")
-            genome_data[0]['data']['features'][0]['function'] = [genome_data[0]['data']['features'][0]['function']]
-            genome_data[0]['data']['features'][0]['function'].append('Abby added this')
-            print("after Abby appended to 'function': ", genome_data[0]['data']['features'][0]['function'], "\n")
-
-
-
-        sys.exit()
         # look at feature functions for one genome, before and after adding to the function list
         for i in range(5):
-            print(genome_data[0]['data']["features"][i]["functions"])
-            genome_data[0]['data']["features"][i]["functions"].append("Added by Abby")
-            print(genome_data[0]['data']["features"][i]["functions"])
-            print("")
+            if 'functions' in genome_data[0]['data']['features'][i]:
+                print("i: ", i)
+                print("has functions: ", genome_data[0]['data']["features"][i]["functions"])
+                genome_data[0]['data']["features"][i]["functions"].append("Added by Abby")
+                print("add new: ", genome_data[0]['data']["features"][i]["functions"])
+                print("")
 
-        print("")
-        # did the functions stay appended? yes!
-        print("after functions were appended: ")
-        for i in range(5):
-            print(genome_data[0]['data']["features"][i]["functions"])
-            print("")
+            if 'function' in genome_data[0]['data']['features'][i]:
+                print("i: ", i)
+                print("has function: ", genome_data[0]['data']['features'][i]['function'])
+                genome_data[0]['data']['features'][i]['function'] = [genome_data[0]['data']['features'][i]['function']]
+                genome_data[0]['data']['features'][i]['function'].append('Abby added this')
+                print("add new: ", genome_data[0]['data']['features'][i]['function'])
+                print("")
 
         # see if i can save the above edited functions into the actual genome object
         # code from prokka
         # the updated genome
         # "provenance": self.ctx.provenance()
         # in prokka, 'name' param is given by ui
-        print("genome name: ", dfu_keys[0], "\n")
-        output_workspace_name = 'some name i guess'
-        print("workspace_name: ", workspace_name, "\n")
+        #print("genome name: ", dfu_keys[0], "\n")
+        #output_workspace_name = 'some name i guess'
+        #print("workspace_name: ", workspace_name, "\n")
         #print("genome_data[0]['data']", genome_data[0]['data'], "\n")
 
         print("Start gfu.save_one_genome \n")
