@@ -217,8 +217,12 @@ class Snekmer:
             if 'function' in genome_data[0]['data']['features'][i]:
                 print("i: ", i)
                 print("has function: ", genome_data[0]['data']['features'][i]['function'])
-                genome_data[0]['data']['features'][i]['function'] = [genome_data[0]['data']['features'][i]['function']]
-                genome_data[0]['data']['features'][i]['function'].append('Abby added this')
+                #genome_data[0]['data']['features'][i]['function'] = [genome_data[0]['data']['features'][i]['function']]
+                #genome_data[0]['data']['features'][i]['function'].append('Abby added this')
+                annotationString = 'Abby added this'
+                genome_data[0]['data']['features'][i]['function'] = " , ".join(
+                    [genome_data[0]['data']['features'][i]['function'], annotationString])
+
                 print("add new: ", genome_data[0]['data']['features'][i]['function'])
                 print("")
 
