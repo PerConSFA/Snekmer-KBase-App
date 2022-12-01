@@ -203,29 +203,34 @@ class Snekmer:
         print("genome_data[0].keys(): ", genome_data[0].keys(), "\n")
         print("genome_data[0]['info']: ", genome_data[0]['info'], "\n")
         print("genome_data[0]['data'].keys(): ", genome_data[0]['data'].keys(), "\n")
+        print("data type of genome_data[0]['data']['features']: ", type(genome_data[0]['data']['features']), "\n")
         print("genome_data[0]['data']['features'][0]: ", genome_data[0]['data']['features'][0], "\n")
+        print("genome_data[0]['data']['features'][0].keys(): ", genome_data[0]['data']['features'][0].keys())
 
-        # look at feature functions for one genome, before and after adding to the function list
-        for i in range(5):
-            if 'functions' in genome_data[0]['data']['features'][i]:
-                print("i: ", i)
-                print("has functions: ", genome_data[0]['data']["features"][i]["functions"])
-                genome_data[0]['data']["features"][i]["functions"].append("Added by Abby")
-                print("add new: ", genome_data[0]['data']["features"][i]["functions"])
-                print("")
 
-            if 'function' in genome_data[0]['data']['features'][i]:
-                print("i: ", i)
-                print("has function: ", genome_data[0]['data']['features'][i]['function'])
-                #genome_data[0]['data']['features'][i]['function'] = [genome_data[0]['data']['features'][i]['function']]
-                #genome_data[0]['data']['features'][i]['function'].append('Abby added this')
-                annotationString = 'Abby added this'
-                genome_data[0]['data']['features'][i]['function'] = " , ".join(
-                    [genome_data[0]['data']['features'][i]['function'], annotationString])
+        # look at feature functions for genome list, before and after adding to the function list
+        for j in genome_data:
+            print('in genome_data loop')
+            for i in range(5):
+                if 'functions' in j['data']['features'][i]:
+                    print("i: ", i)
+                    print("has functions: ", j['data']["features"][i]["functions"])
+                    j['data']["features"][i]["functions"].append("Added by Abby")
+                    print("add new: ", j['data']["features"][i]["functions"])
+                    print("")
 
-                print("add new: ", genome_data[0]['data']['features'][i]['function'])
-                print("")
+                if 'function' in j['data']['features'][i]:
+                    print("i: ", i)
+                    print("has function: ", j['data']['features'][i]['function'])
+                    annotationString = 'Abby added this'
+                    j['data']['features'][i]['function'] = " , ".join(
+                        [j['data']['features'][i]['function'], annotationString])
 
+                    print("add new: ", j['data']['features'][i]['function'])
+                    print("")
+
+        print("Genome_data object 1 info after being annotated: ", genome_data[0]['info'], "\n")
+        print("Genome_data object 2 info after being annotated: ", genome_data[1]['info'], "\n")
         # see if i can save the above edited functions into the actual genome object
         # code from prokka
         # the updated genome
@@ -236,27 +241,73 @@ class Snekmer:
         #print("workspace_name: ", workspace_name, "\n")
         #print("genome_data[0]['data']", genome_data[0]['data'], "\n")
 
-        print("Start gfu.save_one_genome \n")
-        saved = self.gfu.save_one_genome({"workspace": workspace_name,
-                                          "name": output_genome_name,
-                                          "data": genome_data[0]['data']})
-        print("saved: ", saved)
-        print("")
-        info = saved["info"]
-        genome_ref = str(info[6]) + "/" + str(info[0]) + "/" + str(info[4])
-        print("genome ref: ", genome_ref)
-        print("")
-        #annotated_genome = namedtuple("annotated_genome",
-         #                             "genome_ref function_summary_filepath ontology_summary_filepath stats")
 
-        report_message = "The annotation of one genome, for the first 5 features, was successful"
+        #print("Start gfu.save_one_genome \n")
+        #saved = []
+        #for i in genome_data:
+        #    print("scientific name in loop: ,", i['data']['scientific_name'])
+        #    saveOne = self.gfu.save_one_genome({"workspace": workspace_name,
+        #                                    "name": i['data']['scientific_name'],
+        #                                    "data": i['data']})
+        #    print("name in loop: ", i)
+        #    saved.append(saveOne)
+
+        #print("length of saved: ", len(saved))
+        #print("")
+
+
+        #load_genomes = [
+        #    {'file': 'GCF_001566335.1_ASM156633v1_genomic',
+        #     'sciname': 'E. coli K-12 MG1655'
+        #     },
+        #    {'file': 'GCF_000021385.1_ASM2138v1_genomic',
+        #     'sciname': 'D. vulgaris str. Miyazaki F'
+        #     }
+        #]
+
+        #for genome_i, genome in enumerate(load_genomes):
+        #    load_genomes[genome_i]['ref'] = self.get_obj_ref_from_obj_info(self.getGenomeInfo(genome['file'], genome_i))
+
+        # create GenomeSet
+        annotatedGS = {
+            'description': 'two genomes',
+            'elements': dfu_elements
+        }
+        #print("testGS before loop: ", testGS)
+        #for genome_i, genome in enumerate(load_genomes):
+        #    testGS['elements'][genome['sciname']] = {'ref': genome['ref']}
+        print("workspace name: ", workspace_name, "\n")
+        #workspace_number = workspace_name.split('_', 2)[-1]
+        #print("workspace number: ", workspace_number, "\n")
+        wsid = self.dfu.ws_name_to_id(workspace_name)
+        obj_info = self.dfu.save_objects({'id': wsid,
+                                                'objects': [
+                                                    {'type': 'KBaseSearch.GenomeSet',
+                                                     'data': annotatedGS,
+                                                     'name': output_genome_name,
+                                                     'meta': {},
+                                                     'provenance': [
+                                                            {'service': 'Snekmer',
+                                                             'method': 'run_Snekmer_search'
+                                                             }]
+                                                     }]
+                                                 })[0]
+
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I,
+         META_I] = list(range(11))
+        genomeSet_ref = '{}/{}/{}'.format(obj_info[WSID_I], obj_info[OBJID_I], obj_info[VERSION_I])
+        print("genome set reference: ", genomeSet_ref, "\n")
+        print("Now building the report object.")
+
+        report_message = "The annotation of 2 genomes, for each of their first 5 features, was successful"
         # temporary report section, to return the (incorrectly) annotated genome
+        # need to allow output of multiple genome objects, in form of genomeset
         print('Section: build report data.')
         print("")
         report_params = {
             'message': report_message,
             'workspace_name': workspace_name,
-            'objects_created': [{"ref": genome_ref, "description": "Annotated genome by Abby!"}]
+            'objects_created': [{"ref": genomeSet_ref, "description": "Annotated genome by Abby!"}]
         }
         print("report_params: ", report_params, "\n")
 
@@ -264,7 +315,9 @@ class Snekmer:
         report_info = report_client.create_extended_report(report_params)
         print("report info: ", report_info, "\n")
         # construct the output to send back
-        output = {'output_genome_ref': genome_ref, 'report_name': report_info['name'], 'report_ref': report_info['ref']}
+        output = {'output_genome_ref': genomeSet_ref,
+                  'report_name': report_info['name'],
+                  'report_ref': report_info['ref']}
         #END run_Snekmer_search
 
         # At some point might do deeper type checking...
