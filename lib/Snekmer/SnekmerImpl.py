@@ -232,58 +232,42 @@ class Snekmer:
         print("Genome_data object 1 info after being annotated: ", genome_data[0]['info'], "\n")
         print("Genome_data object 2 info after being annotated: ", genome_data[1]['info'], "\n")
         # see if i can save the above edited functions into the actual genome object
-        # code from prokka
-        # the updated genome
-        # "provenance": self.ctx.provenance()
-        # in prokka, 'name' param is given by ui
-        #print("genome name: ", dfu_keys[0], "\n")
-        #output_workspace_name = 'some name i guess'
-        #print("workspace_name: ", workspace_name, "\n")
-        #print("genome_data[0]['data']", genome_data[0]['data'], "\n")
 
+        print("Start gfu.save_one_genome \n")
+        new_refs = []
+        new_names = []
+        for i in genome_data:
+            # format the organism name into what's acceptable for an object name
+            stringName = i['data']['scientific_name']
+            obj_name = "_".join(stringName.split())
+            obj_name2 = obj_name.replace("'", "_")
+            # save the annotated genome object and grab its info
+            info = self.gfu.save_one_genome({"workspace": workspace_name,
+                                                "name": obj_name2,
+                                                "data": i['data']})["info"]
+            # get ref of new annotated genome
+            save_ref = str(info[6]) + "/" + str(info[0]) + "/" + str(info[4])
+            new_refs.append(save_ref)
+            new_names.append(stringName)
 
-        #print("Start gfu.save_one_genome \n")
-        #saved = []
-        #for i in genome_data:
-        #    print("scientific name in loop: ,", i['data']['scientific_name'])
-        #    saveOne = self.gfu.save_one_genome({"workspace": workspace_name,
-        #                                    "name": i['data']['scientific_name'],
-        #                                    "data": i['data']})
-        #    print("name in loop: ", i)
-        #    saved.append(saveOne)
-
-        #print("length of saved: ", len(saved))
-        #print("")
-
-
-        #load_genomes = [
-        #    {'file': 'GCF_001566335.1_ASM156633v1_genomic',
-        #     'sciname': 'E. coli K-12 MG1655'
-        #     },
-        #    {'file': 'GCF_000021385.1_ASM2138v1_genomic',
-        #     'sciname': 'D. vulgaris str. Miyazaki F'
-        #     }
-        #]
-
-        #for genome_i, genome in enumerate(load_genomes):
-        #    load_genomes[genome_i]['ref'] = self.get_obj_ref_from_obj_info(self.getGenomeInfo(genome['file'], genome_i))
+        print("=" * 80)
+        print("new_refs: ", new_refs)
+        print("new_names: ", new_names)
 
         # create GenomeSet
-        annotatedGS = {
-            'description': 'two genomes',
-            'elements': dfu_elements
-        }
-        #print("testGS before loop: ", testGS)
-        #for genome_i, genome in enumerate(load_genomes):
-        #    testGS['elements'][genome['sciname']] = {'ref': genome['ref']}
-        print("workspace name: ", workspace_name, "\n")
-        #workspace_number = workspace_name.split('_', 2)[-1]
-        #print("workspace number: ", workspace_number, "\n")
+        print("Start creating new GenomeSet object \n")
+        new_gs_data = {'description': 'blah for now', 'elements': dict()}
+        print("initialize new_gs_data: ", new_gs_data)
+        for i, j in zip(new_names, new_refs):
+            new_gs_data['elements'][i] = {'ref': j}
+
+        print("after updating new_gs_data: ", new_gs_data)
+
         wsid = self.dfu.ws_name_to_id(workspace_name)
         obj_info = self.dfu.save_objects({'id': wsid,
-                                                'objects': [
+                                          'objects': [
                                                     {'type': 'KBaseSearch.GenomeSet',
-                                                     'data': annotatedGS,
+                                                     'data': new_gs_data,
                                                      'name': output_genome_name,
                                                      'meta': {},
                                                      'provenance': [
@@ -291,7 +275,7 @@ class Snekmer:
                                                              'method': 'run_Snekmer_search'
                                                              }]
                                                      }]
-                                                 })[0]
+                                          })[0]
 
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I,
          META_I] = list(range(11))
