@@ -139,10 +139,13 @@ class Snekmer:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_Snekmer_search
+
         # Print statements to stdout/stderr are captured and available as the App log
         logging.info('Starting run_Snekmer_search function. Params=' + pformat(params))
+
         # Check inputs
         logging.info('Validating parameters.')
+
         if 'object_ref' not in params:
             raise ValueError('Parameter object_ref is not set in input arguments')
         object_ref = params['object_ref']
@@ -159,56 +162,30 @@ class Snekmer:
             raise ValueError('Parameter output_genome_name is not set in input arguments')
         output_genome_name = params['output_genome_name']
 
-        # testing diff between dfu.get_objects and wsClient.get_objects2 (which is used in GenomeSetToFasta)
-        obj_dfu_get_obj = self.dfu.get_objects({'object_refs': [object_ref]})
-        print("Using DataFileUtil.get_objects: ", obj_dfu_get_obj)
-        print("")
-
+        logging.info("Grabbing the Genome data from the input GenomeSet.")
         # accessing different parts of dfu.get_objects output
-        dfu_elements = obj_dfu_get_obj['data'][0]['data']['elements']
-        print("dfu_elements: ", dfu_elements)
-        print("")
-        dfu_keys = list(dfu_elements)
-        # prints the scientific name (at least when testing locally)
-        print("dfu_keys should be the genome_ids: ", dfu_keys)
+        obj_dfu_get_obj = self.dfu.get_objects({'object_refs': [object_ref]})
 
+        # format is 'dfu_elements: {'param0': {'ref': '66073/19/1'}, 'param1': {'ref': '66073/2/1'}}' in appdev
+        # the keys are the scientific names (genome_ids) when testing locally
+        dfu_elements = obj_dfu_get_obj['data'][0]['data']['elements']
+        dfu_keys = list(dfu_elements)
+
+        # get list of refs for the genomes within the genomeset
         refs = []
         for i in dfu_keys:
             refs.append(dfu_elements[i]['ref'])
-        # prints the reference ids (only) for the genomes within the genomeset
-        print("list of genome refs in the genome_set: ", refs)
-        print(refs[0])
 
-        ref_list = list(dfu_elements.values())
-        print("")
-        print("ref_list: ", ref_list)
-        print("")
-
-        # testing use of genome_api
+        # grab the current genome_data
         genome_data = []
         for i in refs:
             print('made it into the loop for ', i)
             genome_data.append(self.genome_api.get_genome_v1({"genomes": [{"ref": i}],
-                                                'downgrade': 0})["genomes"][0])
+                                                              'downgrade': 0})["genomes"][0])
 
-        print("")
-        print("genome_data length: ", len(genome_data))
-
-        #for i in genome_data:
-         #   print("look at some functions: ", i["data"]["features"][0]["functions"])
-        print("first genome, first five functions original ")
-        print("")
-
-        print("data type of genome_data: ", type(genome_data), "\n")
-        print("genome_data[0].keys(): ", genome_data[0].keys(), "\n")
-        print("genome_data[0]['info']: ", genome_data[0]['info'], "\n")
-        print("genome_data[0]['data'].keys(): ", genome_data[0]['data'].keys(), "\n")
-        print("data type of genome_data[0]['data']['features']: ", type(genome_data[0]['data']['features']), "\n")
-        print("genome_data[0]['data']['features'][0]: ", genome_data[0]['data']['features'][0], "\n")
-        print("genome_data[0]['data']['features'][0].keys(): ", genome_data[0]['data']['features'][0].keys())
-
-
-        # look at feature functions for genome list, before and after adding to the function list
+        logging.info("Annotating the Genomes.")
+        # for now annotate the first 5 genes with my lovely message to prove I can do it
+        # need if statements for 'functions' vs 'function' because of the differences in genome object versions
         for j in genome_data:
             print('in genome_data loop')
             for i in range(5):
@@ -229,39 +206,31 @@ class Snekmer:
                     print("add new: ", j['data']['features'][i]['function'])
                     print("")
 
-        print("Genome_data object 1 info after being annotated: ", genome_data[0]['info'], "\n")
-        print("Genome_data object 2 info after being annotated: ", genome_data[1]['info'], "\n")
-        # see if i can save the above edited functions into the actual genome object
-
-        print("Start gfu.save_one_genome \n")
+        logging.info("Saving the annotated Genomes as individual Genome objects.")
+        # save the annotated genomes as new genome objects, with new refs
         new_refs = []
         new_names = []
         for i in genome_data:
             # format the organism name into what's acceptable for an object name
+            # example- gfu.save_one_genome claimed "Desulfovibrio vulgaris str. 'Miyazaki F'" had an illegal character
             stringName = i['data']['scientific_name']
             obj_name = "_".join(stringName.split())
             obj_name2 = obj_name.replace("'", "_")
             # save the annotated genome object and grab its info
             info = self.gfu.save_one_genome({"workspace": workspace_name,
-                                                "name": obj_name2,
-                                                "data": i['data']})["info"]
+                                             "name": obj_name2,
+                                             "data": i['data']})["info"]
             # get ref of new annotated genome
             save_ref = str(info[6]) + "/" + str(info[0]) + "/" + str(info[4])
             new_refs.append(save_ref)
             new_names.append(stringName)
 
-        print("=" * 80)
-        print("new_refs: ", new_refs)
-        print("new_names: ", new_names)
-
-        # create GenomeSet
-        print("Start creating new GenomeSet object \n")
+        logging.info("Saving the new Genomes into a new GenomeSet object.")
+        # save annotated genomes into genomeset object, then get that new ref to pass into the report
         new_gs_data = {'description': 'blah for now', 'elements': dict()}
-        print("initialize new_gs_data: ", new_gs_data)
+
         for i, j in zip(new_names, new_refs):
             new_gs_data['elements'][i] = {'ref': j}
-
-        print("after updating new_gs_data: ", new_gs_data)
 
         wsid = self.dfu.ws_name_to_id(workspace_name)
         obj_info = self.dfu.save_objects({'id': wsid,
@@ -280,28 +249,25 @@ class Snekmer:
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I,
          META_I] = list(range(11))
         genomeSet_ref = '{}/{}/{}'.format(obj_info[WSID_I], obj_info[OBJID_I], obj_info[VERSION_I])
-        print("genome set reference: ", genomeSet_ref, "\n")
-        print("Now building the report object.")
 
+        logging.info("Building the output KBaseReport.")
+        # temporary report section
+        # returns the (incorrectly) annotated genomes in genomeset object
         report_message = "The annotation of 2 genomes, for each of their first 5 features, was successful"
-        # temporary report section, to return the (incorrectly) annotated genome
-        # need to allow output of multiple genome objects, in form of genomeset
-        print('Section: build report data.')
-        print("")
         report_params = {
             'message': report_message,
             'workspace_name': workspace_name,
             'objects_created': [{"ref": genomeSet_ref, "description": "Annotated genome by Abby!"}]
         }
-        print("report_params: ", report_params, "\n")
 
         report_client = KBaseReport(self.callback_url)
         report_info = report_client.create_extended_report(report_params)
-        print("report info: ", report_info, "\n")
+
         # construct the output to send back
         output = {'output_genome_ref': genomeSet_ref,
                   'report_name': report_info['name'],
                   'report_ref': report_info['ref']}
+
         #END run_Snekmer_search
 
         # At some point might do deeper type checking...
@@ -310,6 +276,7 @@ class Snekmer:
                              'output is not type dict as required.')
         # return the results
         return [output]
+
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",
