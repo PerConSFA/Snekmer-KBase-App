@@ -171,6 +171,164 @@ class Snekmer:
         dfu_elements = obj_dfu_get_obj['data'][0]['data']['elements']
         dfu_keys = list(dfu_elements)
 
+        # snekmer
+        # get GenomeSet name to add into protein fasta file names
+        data_obj = obj_dfu_get_obj['data'][0]
+        info = data_obj['info']
+        obj_name = str(info[1])
+        print('data_obj data for the GenomeSet:', data_obj)
+
+        GenomeSetToFASTA_params = {
+            'genomeSet_ref': object_ref,
+            'file': obj_name,
+            'residue_type': 'protein',
+            'feature_type': 'CDS',
+            'record_id_pattern': '%%feature_id%%',
+            'merge_fasta_files': 'FALSE'
+        }
+        print("GenomeSetToFasta params: ")
+        pprint(GenomeSetToFASTA_params)
+
+        print("Calling GenomeSetToFasta: ")
+        GenomeSetToFASTA_retVal = self.DOTFU.GenomeSetToFASTA(GenomeSetToFASTA_params)
+        fasta_file_path = GenomeSetToFASTA_retVal['fasta_file_path_list']
+        print("=" * 80)
+        print("Fasta file path: ")
+        print(fasta_file_path)
+
+        # need to rename fasta files since GenomeSetToFasta doesn't use the Genome object's sciname
+        genome_ref_sci_name = GenomeSetToFASTA_retVal['genome_ref_to_sci_name']
+        print("Genome references should be turned into their scientific name: ")
+        print(genome_ref_sci_name)
+
+        # set up snekmer directory
+        # Add params from the UI to the config.yaml
+        logging.info('Writing UI inputs into the config.yaml')
+        new_params = {'k': k, 'alphabet': alphabet}
+        with open('/kb/module/data/config.yaml', 'r') as file:
+            my_config = yaml.safe_load(file)
+            my_config.update(new_params)
+
+        # save updated config.yaml to self.shared_folder
+        with open(f"{self.shared_folder}/config.yaml", 'w') as file:
+            yaml.safe_dump(my_config, file)
+        os.makedirs(f"{self.shared_folder}/input")
+
+        # save model_outputs from data to /kb/module/work/tmp
+        # shutil.copytree("/kb/module/data/model_output", f"{self.shared_folder}/model_output")
+        # faster testing
+        shutil.copytree("/kb/module/data/small_test_model_output", f"{self.shared_folder}/small_test_model_output")
+        print("=" * 80)
+        print("Next copy protein fastas from /kb/module/work/tmp to /kb/module/work/tmp/input")
+
+        # save each protein FASTA to the input folder
+        for i in range(len(fasta_file_path)):
+            shutil.copy(fasta_file_path[i], f"{self.shared_folder}/input")
+        print("=" * 80)
+        print("Copied protein fastas to the input folder for the subprocess step")
+
+        # now that the protein files are in /input
+        # remove .params, replace with sci name, and then add .faa extension
+        mypath = Path(f"{self.shared_folder}/input")
+        for file, i in zip(os.listdir(mypath), genome_ref_sci_name.values()):
+            print("Filename in beginning of loop: ", file)
+            new_file = file.split('.', 1)[0]
+            print("Filename when everything after first period is removed: ", new_file)
+            print("genome_ref_sci_name: ", i)
+            new_file += "."
+            new_file += i
+            print("Filename after adding sci name: ", new_file)
+            new_file += ".faa"
+            print("Filename after adding .faa extension", new_file)
+            old = os.path.join(mypath, file)
+            new = os.path.join(mypath, new_file)
+            if not os.path.exists(new):  # check if the file doesn't exist
+                os.rename(old, new)
+            print("=" * 80)
+
+        # after self.shared_folder directory is set up, run commandline section
+        print('Run subprocess of snekmer search')
+        print("=" * 80)
+        cmd_string = "snekmer search"
+        cmd_process = subprocess.Popen(cmd_string, stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT, cwd=self.shared_folder,
+                                       shell=True)
+        cmd_process.wait()
+        print('return code: ' + str(cmd_process.returncode))
+        print("="*80)
+        output, errors = cmd_process.communicate()
+        print("output: " + str(output) + '\n')
+        print("errors: " + str(errors) + '\n')
+        print("="*80)
+
+        # set up output directory for output files
+        result_directory = os.path.join(self.shared_folder, "output", "search", "")
+        output_files = list()
+        output_directory = os.path.join(self.shared_folder, str(uuid.uuid4()))
+        os.makedirs(output_directory)
+        run_date = datetime.now().strftime("%Y.%m.%d-%I:%M:%S%p")
+        result_name = "SnekmerSearch" + str(k) + str(alphabet) + str(run_date) + ".zip"
+        result_file = os.path.join(output_directory, result_name)
+
+        print("result directory: " + result_directory)
+        print("=" * 80)
+        print("output_directory: " + output_directory)
+        print("=" * 80)
+        print("result_file: " + result_file)
+        print("=" * 80)
+
+        # zip output files for the KBase report
+        with zipfile.ZipFile(result_file, 'w',
+                             zipfile.ZIP_DEFLATED,
+                             allowZip64=True) as zip_file:
+            for root, dirs, files in os.walk(result_directory):
+                for file in files:
+                    if file.endswith('.csv'):
+                        zip_file.write(os.path.join(root, file),
+                                       os.path.join(os.path.basename(root), file))
+
+        output_files.append({
+            'path': result_file,
+            'name': os.path.basename(result_file),
+            'label': os.path.basename(result_file),
+            'description': 'Files generated by Snekmer Search'})
+
+        # analyze csv outputs for the KBase report
+        # combine the Search csv outputs into one csv
+
+        print("Starting to analyze the csvs: ")
+        filelist = []
+        for root, dirs, files in os.walk(result_directory):
+            for file in files:
+                if file.endswith(".csv"):
+                    filelist.append(os.path.join(root, file))
+
+        combined_csv = pd.concat([pd.read_csv(f) for f in filelist])
+        combined_csv.to_csv("combined_csv.csv", index=False, encoding='utf-8-sig')
+
+        unique_seq = len(pd.unique(combined_csv['sequence_id']))
+        total_seq = len(combined_csv.index)
+        TF_counts = combined_csv['in_family'].value_counts().to_frame()
+        TF_counts = TF_counts.rename(columns={'in_family': 'Count'})
+        print()
+        print(TF_counts)
+
+        # prep params for report
+        print("=" * 80)
+        print("Prep params for report: ")
+
+        genomes_run = list(data_obj['data']['elements'].keys())
+        report_message = "Kmer input: {0}\n" \
+                         "Alphabet: {1}\n" \
+                         "Genomes run: {2}\n" \
+                         "Number of sequences: {3}\n" \
+                         "Number of searches: {4}\n\n" \
+                         "Sequences in a family: \n{5}".format(str(k), alphabet, genomes_run,
+                                                               unique_seq, total_seq, TF_counts)
+        print("Report message:")
+        print(report_message)
+
+        # previous genome annotation section
         # get list of refs for the genomes within the genomeset
         refs = []
         for i in dfu_keys:
@@ -253,17 +411,20 @@ class Snekmer:
         logging.info("Building the output KBaseReport.")
         # temporary report section
         # returns the (incorrectly) annotated genomes in genomeset object
-        report_message = "The annotation of 2 genomes, for each of their first 5 features, was successful"
+
         report_params = {
             'message': report_message,
             'workspace_name': workspace_name,
-            'objects_created': [{"ref": genomeSet_ref, "description": "Annotated genome by Abby!"}]
+            'objects_created': [{"ref": genomeSet_ref, "description": "Annotated genome by Abby!"}],
+            'file_links': output_files
         }
 
         report_client = KBaseReport(self.callback_url)
         report_info = report_client.create_extended_report(report_params)
 
         # construct the output to send back
+        # troubleshoot later- does the output_genome_name need to be in this output?
+        # also, in the spec.json its described as Genome not GenomeSet, yet things seem to be working properly
         output = {'output_genome_ref': genomeSet_ref,
                   'report_name': report_info['name'],
                   'report_ref': report_info['ref']}
