@@ -171,6 +171,31 @@ class Snekmer:
         dfu_elements = obj_dfu_get_obj['data'][0]['data']['elements']
         dfu_keys = list(dfu_elements)
 
+        # get list of refs for the genomes within the genomeset
+        refs = []
+        for i in dfu_keys:
+            refs.append(dfu_elements[i]['ref'])
+
+        # grab the current genome_data
+        genome_data = []
+        for i in refs:
+            print('made it into the loop for ', i)
+            genome_data.append(self.genome_api.get_genome_v1({"genomes": [{"ref": i}],
+                                                              'downgrade': 0})["genomes"][0])
+
+        # use the formatted genome names for the organism names
+        genome_names_formatted = []
+        genome_names = []
+        for i in genome_data:
+            stringName = i['data']['scientific_name']
+            obj_name = "_".join(stringName.split())
+            obj_name2 = obj_name.replace("'", "_")
+            genome_names_formatted.append(obj_name2)
+            genome_names.append(stringName)
+
+        print("genome_names: ", genome_names)
+        print("genome_names_formatted: ", genome_names_formatted)
+
         # snekmer
         # get GenomeSet name to add into protein fasta file names
         data_obj = obj_dfu_get_obj['data'][0]
@@ -195,11 +220,6 @@ class Snekmer:
         print("=" * 80)
         print("Fasta file path: ")
         print(fasta_file_path)
-
-        # need to rename fasta files since GenomeSetToFasta doesn't use the Genome object's sciname
-        genome_ref_sci_name = GenomeSetToFASTA_retVal['genome_ref_to_sci_name']
-        print("Genome references should be turned into their scientific name: ")
-        print(genome_ref_sci_name)
 
         # set up snekmer directory
         # Add params from the UI to the config.yaml
@@ -228,16 +248,16 @@ class Snekmer:
         print("Copied protein fastas to the input folder for the subprocess step")
 
         # now that the protein files are in /input
-        # remove .params, replace with sci name, and then add .faa extension
+        # remove .params, replace with formatted sci name, and then add .faa extension
         mypath = Path(f"{self.shared_folder}/input")
-        for file, i in zip(os.listdir(mypath), genome_ref_sci_name.values()):
+        for file, i in zip(os.listdir(mypath), genome_names_formatted):
             print("Filename in beginning of loop: ", file)
             new_file = file.split('.', 1)[0]
             print("Filename when everything after first period is removed: ", new_file)
-            print("genome_ref_sci_name: ", i)
+            print("genome_names_formatted: ", i)
             new_file += "."
             new_file += i
-            print("Filename after adding sci name: ", new_file)
+            print("Filename after adding formatted genome name: ", new_file)
             new_file += ".faa"
             print("Filename after adding .faa extension", new_file)
             old = os.path.join(mypath, file)
@@ -317,30 +337,17 @@ class Snekmer:
         print("=" * 80)
         print("Prep params for report: ")
 
-        genomes_run = list(data_obj['data']['elements'].keys())
         report_message = "Kmer input: {0}\n" \
                          "Alphabet: {1}\n" \
                          "Genomes run: {2}\n" \
                          "Number of sequences: {3}\n" \
                          "Number of searches: {4}\n\n" \
-                         "Sequences in a family: \n{5}".format(str(k), alphabet, genomes_run,
+                         "Sequences in a family: \n{5}".format(str(k), alphabet, genome_names,
                                                                unique_seq, total_seq, TF_counts)
         print("Report message:")
         print(report_message)
 
         # previous genome annotation section
-        # get list of refs for the genomes within the genomeset
-        refs = []
-        for i in dfu_keys:
-            refs.append(dfu_elements[i]['ref'])
-
-        # grab the current genome_data
-        genome_data = []
-        for i in refs:
-            print('made it into the loop for ', i)
-            genome_data.append(self.genome_api.get_genome_v1({"genomes": [{"ref": i}],
-                                                              'downgrade': 0})["genomes"][0])
-
         logging.info("Annotating the Genomes.")
         # for now annotate the first 5 genes with my lovely message to prove I can do it
         # need if statements for 'functions' vs 'function' because of the differences in genome object versions
@@ -352,6 +359,7 @@ class Snekmer:
                     print("has functions: ", j['data']["features"][i]["functions"])
                     j['data']["features"][i]["functions"].append("Added by Abby")
                     print("add new: ", j['data']["features"][i]["functions"])
+                    print("the functions id: ", j['data']["features"][i]["id"])
                     print("")
 
                 if 'function' in j['data']['features'][i]:
@@ -362,6 +370,7 @@ class Snekmer:
                         [j['data']['features'][i]['function'], annotationString])
 
                     print("add new: ", j['data']['features'][i]['function'])
+                    print("the function id: ", j['data']["features"][i]["id"])
                     print("")
 
         logging.info("Saving the annotated Genomes as individual Genome objects.")
