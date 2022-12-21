@@ -335,7 +335,7 @@ class Snekmer:
 
         # prep params for report
         print("=" * 80)
-        print("Prep params for report: ")
+        print("Prep params for report.\n")
 
         report_message = "Kmer input: {0}\n" \
                          "Alphabet: {1}\n" \
@@ -344,34 +344,73 @@ class Snekmer:
                          "Number of searches: {4}\n\n" \
                          "Sequences in a family: \n{5}".format(str(k), alphabet, genome_names,
                                                                unique_seq, total_seq, TF_counts)
-        print("Report message:")
+        print("Report message:\n")
         print(report_message)
 
         # previous genome annotation section
         logging.info("Annotating the Genomes.")
         # for now annotate the first 5 genes with my lovely message to prove I can do it
+        # df with snekmer search result hits, then remove unnecessary columns
+        true_df = combined_csv.loc[combined_csv['in_family'] == True]
+        true_df = true_df.loc[:, ['filename', 'sequence_id', 'model']]
+
+        # genome_data genomes should be in same order as the genomes in genome_names_formatted
         # need if statements for 'functions' vs 'function' because of the differences in genome object versions
-        for j in genome_data:
-            print('in genome_data loop')
-            for i in range(5):
+
+        # for each genome object and its formatted name
+        for j, names in zip(genome_data, genome_names_formatted):
+            print('in genome_data loop for name: ', names)
+            length = len(j['data']['features'])
+            print("length of features list: ", length)
+            test_length = int(length/200)
+            print("test length to use for now: ", test_length, "\n")
+            # subset the search results for only this genome's results
+            x = true_df.loc[(true_df['filename'].str.contains(names))]
+
+            # for all the features in the genome
+            for i in range(test_length):
+                print("**** now attempt to annotate **** \n")
+                # later- maybe just check one feature to see if it has functions or function? or
+                # check genome object version number?
                 if 'functions' in j['data']['features'][i]:
                     print("i: ", i)
+                    print("has id: ", j['data']["features"][i]["id"])
                     print("has functions: ", j['data']["features"][i]["functions"])
-                    j['data']["features"][i]["functions"].append("Added by Abby")
-                    print("add new: ", j['data']["features"][i]["functions"])
-                    print("the functions id: ", j['data']["features"][i]["id"])
-                    print("")
+
+                    # for each id in the snekmer results
+                    for count, l in enumerate(x['sequence_id']):
+                        # if those ids are the same
+                        if j['data']["features"][i]["id"] == l:
+                            print("index in kbase: ", i)
+                            print("index in snekmer results: ", count)
+                            # get the model value using index of the snekmer id
+                            new_model = x['model'].values[count]
+                            print("new model to add to kbase: ", new_model)
+                            # append that model to the kbase features
+                            j['data']["features"][i]["functions"].append(new_model)
+                            print("add new: ", j['data']["features"][i]["functions"])
+                            print("")
 
                 if 'function' in j['data']['features'][i]:
                     print("i: ", i)
-                    print("has function: ", j['data']['features'][i]['function'])
-                    annotationString = 'Abby added this'
-                    j['data']['features'][i]['function'] = " , ".join(
-                        [j['data']['features'][i]['function'], annotationString])
+                    print("has id: ", j['data']["features"][i]["id"])
+                    print("has function: ", j['data']["features"][i]["function"])
+                    print("**** now attempt to annotate **** \n")
 
-                    print("add new: ", j['data']['features'][i]['function'])
-                    print("the function id: ", j['data']["features"][i]["id"])
-                    print("")
+                    # for each id in the snekmer results
+                    for count, l in enumerate(x['sequence_id']):
+                        # if those ids are the same
+                        if j['data']["features"][i]["id"] == l:
+                            print("index in kbase: ", i)
+                            print("index in snekmer results: ", count)
+                            # get the model value using index of the snekmer id
+                            new_model = x['model'].values[count]
+                            print("new model to add to kbase: ", new_model)
+                            # append that model to the kbase features
+                            j['data']['features'][i]['function'] = ", ".join(
+                                [j['data']['features'][i]['function'], new_model])
+                            print("add new: ", j['data']["features"][i]["function"])
+                            print("")
 
         logging.info("Saving the annotated Genomes as individual Genome objects.")
         # save the annotated genomes as new genome objects, with new refs
