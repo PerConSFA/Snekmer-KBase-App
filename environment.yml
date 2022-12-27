@@ -1,5 +1,5 @@
 # for snekmer main
-# commit 2ca0bb84fd4be1d7e558e2b548f738b5b104dbe9
+# commit 75ee8f03b63708016396128e8d5092254c747bdc is first with v1.0.3 label
 # nose and jsonrpcbase are required by kbase
 name: snekmer
 channels:
@@ -25,4 +25,4 @@ dependencies:
   - pip
   - pip:
       - jsonrpcbase
-      - git+https://github.com/PNNL-CompBio/Snekmer.git@2ca0bb84fd4be1d7e558e2b548f738b5b104dbe9
+      - git+https://github.com/PNNL-CompBio/Snekmer.git@75ee8f03b63708016396128e8d5092254c747bdc

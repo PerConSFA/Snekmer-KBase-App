@@ -1,5 +1,5 @@
 # snekmer search main
-# commit 2ca0bb84fd4be1d7e558e2b548f738b5b104dbe9
+# this config.yaml works with commit 75ee8f03b63708016396128e8d5092254c747bdc
 # input/output params
 input_file_exts: ["fasta", "fna", "faa", "fa"] # specify valid input file extensions
 input_file_regex: ".*" # regex to parse family from filename
