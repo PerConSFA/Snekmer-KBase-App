@@ -235,9 +235,9 @@ class Snekmer:
         os.makedirs(f"{self.shared_folder}/input")
 
         # save model_outputs from data to /kb/module/work/tmp
-        # shutil.copytree("/kb/module/data/model_output", f"{self.shared_folder}/model_output")
+        shutil.copytree("/kb/module/data/model_output", f"{self.shared_folder}/model_output")
         # faster testing
-        shutil.copytree("/kb/module/data/small_test_model_output", f"{self.shared_folder}/small_test_model_output")
+        #shutil.copytree("/kb/module/data/small_test_model_output", f"{self.shared_folder}/small_test_model_output")
         print("=" * 80)
         print("Next copy protein fastas from /kb/module/work/tmp to /kb/module/work/tmp/input")
 

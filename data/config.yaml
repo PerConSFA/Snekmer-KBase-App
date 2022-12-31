@@ -13,11 +13,11 @@ score:
   lname: None # label name
 
 # search params
-#model_dir: "/kb/module/work/tmp/model_output/model/"
-#basis_dir: "/kb/module/work/tmp/model_output/labels/"
-#score_dir: "/kb/module/work/tmp/model_output/score/"
+model_dir: "/kb/module/work/tmp/model_output/model/"
+basis_dir: "/kb/module/work/tmp/model_output/kmerize/"
+score_dir: "/kb/module/work/tmp/model_output/scoring/"
 
 # for testing
-model_dir: "/kb/module/work/tmp/small_test_model_output/model/"
-basis_dir: "/kb/module/work/tmp/small_test_model_output/kmerize/"
-score_dir: "/kb/module/work/tmp/small_test_model_output/scoring/"
+#model_dir: "/kb/module/work/tmp/small_test_model_output/model/"
+#basis_dir: "/kb/module/work/tmp/small_test_model_output/kmerize/"
+#score_dir: "/kb/module/work/tmp/small_test_model_output/scoring/"

@@ -225,8 +225,8 @@ class SnekmerTest(unittest.TestCase):
 
         parameters = {'workspace_name': self.getWsName(),
                       'object_ref': target_genomeSet_ref,
-                      'k': 4,
-                      'alphabet': "miqs",
+                      'k': 6,
+                      'alphabet': "standard",
                       'output_genome_name': 'TheOutPutGenomeName'
                       }
 
