@@ -359,16 +359,17 @@ class Snekmer:
 
         # for each genome object and its formatted name
         for j, names in zip(genome_data, genome_names_formatted):
+            print("\n Annotate Genome")
             print('in genome_data loop for name: ', names)
             length = len(j['data']['features'])
             print("length of features list: ", length)
-            test_length = int(length/200)
-            print("test length to use for now: ", test_length, "\n")
+            #test_length = int(length/200)
+            #print("test length to use for now: ", test_length, "\n")
             # subset the search results for only this genome's results
             x = true_df.loc[(true_df['filename'].str.contains(names))]
 
             # for all the features in the genome
-            for i in range(test_length):
+            for i in range(length):
                 print("**** now attempt to annotate **** \n")
                 # later- maybe just check one feature to see if it has functions or function? or
                 # check genome object version number?
