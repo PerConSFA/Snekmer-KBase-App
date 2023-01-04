@@ -1,0 +1,28 @@
+# for snekmer main
+# commit 75ee8f03b63708016396128e8d5092254c747bdc is first with v1.0.3 label
+# nose and jsonrpcbase are required by kbase
+name: snekmer
+channels:
+  - anaconda
+  - bioconda
+  - numba
+  - conda-forge
+dependencies:
+  - python >= 3.9
+  - biopython
+  - jinja2
+  - matplotlib
+  - nose
+  - numpy >= 1.22.3
+  - numba >= 0.56
+  - scipy
+  - pandas
+  - seaborn
+  - scikit-learn
+  - snakemake == 7.0
+  - umap-learn
+  - hdbscan
+  - pip
+  - pip:
+      - jsonrpcbase
+      - git+https://github.com/PNNL-CompBio/Snekmer.git@75ee8f03b63708016396128e8d5092254c747bdc

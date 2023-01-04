@@ -4,6 +4,12 @@ A KBase module: Snekmer
 
 module Snekmer {
     /*
+        Reference to a Genome object in the workspace
+        @id ws KBaseGenomes.Genome
+    */
+    typedef string genome_ref;
+
+    /*
     Input parameters for Snekmer Model.
 
     workspace_name - the name of the workspace for input/output
@@ -38,21 +44,19 @@ module Snekmer {
     Input parameters for Snekmer Search.
 
     workspace_name - the name of the workspace for input/output
-    object_ref - Genome object with Protein Translation sequence in the Feature
+    object_ref - GenomeSet
     k - kmer length for features
     alphabet - mapping function for reduced amino acid sequences
-    min_rep_thresh - min number of sequences to include feature for prefiltering
-    processes - for parallelization
-
+    output_genome_name - output object name
     */
+    typedef string obj_ref;
 
     typedef structure {
         string workspace_name;
         string object_ref;
         int k;
         int alphabet;
-        int min_rep_thresh;
-        int processes;
+        string output_genome_name;
     } SnekmerSearchParams;
 
     /*
@@ -65,6 +69,7 @@ module Snekmer {
     typedef structure {
         string report_name;
         string report_ref;
+        genome_ref output_genome_ref;
     } SnekmerSearchOutput;
 
 

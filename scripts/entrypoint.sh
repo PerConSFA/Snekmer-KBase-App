@@ -1,6 +1,11 @@
 #!/bin/bash
 
+# this edits the path to the original /miniconda/bin, even if the Dockerfile tries to change the path
 . /kb/deployment/user-env.sh
+
+# in order to use custom python version and packages instead of kbase offered ones,
+# update path here to match what the Dockerfile tried to change it to
+PATH=/opt/conda/envs/snekmer/bin:$PATH
 
 python ./scripts/prepare_deploy_cfg.py ./deploy.cfg ./work/config.properties
 

@@ -18,7 +18,8 @@
             "default_values": [ "" ],
             "field_type": "text",
             "text_options": {
-                "valid_ws_types": [ "KBaseGenomes.Genome" ]
+                "valid_ws_types": [ "KBaseSearch.GenomeSet", "KBaseCollections.GenomeSet",
+                "KBaseSets.GenomeSet"]
             }
         },
         {
@@ -65,28 +66,17 @@
             }
         },
         {
-            "id": "min_rep_thresh",
+            "id": "output_genome_name",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
-            "default_values": [ "" ],
+            "default_values": [""],
             "field_type": "text",
             "text_options": {
-                "validate_as": "int"
-            }
-        },
-        {
-            "id": "processes",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "" ],
-            "field_type": "text",
-            "text_options": {
-                "validate_as": "int"
+                "valid_ws_types" : [ "KBaseGenomes.Genome" ],
+                "is_output_name": true
             }
         }
-
     ],
 
     "behavior": {
@@ -98,7 +88,7 @@
                 {
                     "input_parameter": "object_ref",
                     "target_property": "object_ref",
-                    "target_type_transform": "ref"
+                    "target_type_transform": "resolved-ref"
                 },
                 {
                     "narrative_system_variable": "workspace",
@@ -113,19 +103,14 @@
                     "target_property": "alphabet"
                 },
                 {
-                    "input_parameter": "min_rep_thresh",
-                    "target_property": "min_rep_thresh"
-                },
-                {
-                    "input_parameter": "processes",
-                    "target_property": "processes"
+                    "input_parameter": "output_genome_name",
+                    "target_property": "output_genome_name"
                 }
-
             ],
             "output_mapping": [
                 {
                     "narrative_system_variable": "workspace",
-                    "target_property": "workspace_name"
+                    "target_property": "ws"
                 },
                 {
                     "service_method_output_path": [0,"report_name"],
@@ -134,6 +119,10 @@
                 {
                     "service_method_output_path": [0,"report_ref"],
                     "target_property": "report_ref"
+                },
+                                {
+                    "input_parameter": "output_genome_name",
+                    "target_property": "id"
                 }
             ]
         }

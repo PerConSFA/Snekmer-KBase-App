@@ -28,7 +28,7 @@ parameters :
         ui-name : |
             Genome
         short-hint : |
-            Genome object with protein sequence
+            GenomeSets
     k :
         ui-name : |
             Kmer
@@ -39,16 +39,11 @@ parameters :
             Alphabet
         short-hint : |
             Mapping function for reduced amino acid alphabets
-    min_rep_thresh :
-        ui-name : |
-            Min. Representation Threshold
-        short-hint : |
-            Minimum number of sequences to include feature for prefiltering
-    processes :
-        ui-name : |
-            Processes
-        short-hint : |
-            For paralellization
+    output_genome_name:
+        ui-name: |
+            Output genome
+        short-hint: |
+            The name under which the resulting Genome will be saved in the Narrative
 
 description : |
     <p>Snekmer Search app </p>

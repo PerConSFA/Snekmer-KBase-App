@@ -3,11 +3,19 @@
   "type" : "sdk",
   "version_tag" : "release"
 }, {
+  "module_name" : "GenomeAnnotationAPI",
+  "type" : "sdk",
+  "version_tag" : "release"
+}, {
   "module_name" : "GenomeFileUtil",
   "type" : "sdk",
   "version_tag" : "release"
 }, {
   "module_name" : "kb_uploadmethods",
+  "type" : "sdk",
+  "version_tag" : "release"
+}, {
+  "module_name" : "KBaseDataObjectToFileUtils",
   "type" : "sdk",
   "version_tag" : "release"
 }, {
