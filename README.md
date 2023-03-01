@@ -6,7 +6,7 @@ This [KBase](https://kbase.us) module was generated leveraging the KBase Softwar
 
 # Dependencies
 
-Requires installation of the [KBase Software Development Kit (SDK)](https://github.com/kbase/kb_sdk) to use this module. 
+Requires installation of the [KBase Software Development Kit (SDK)](https://github.com/kbase/kb_sdk) to use this module. May requires knowledgeable usage and workflow literacy of Snekmer software package listed under the citation reference listed below.
 
 # Setup and test
 
@@ -25,7 +25,7 @@ To use this code in another SDK module, call `kb-sdk install Snekmer` in the oth
 
 # Help
 
-To learn more, visit the [KBase SDK User Documentation](https://kbase.github.io/kb_sdk_docs/), [FAQ](https://kbase.github.io/kb_sdk_docs/references/questions_and_answers.html) page, and/or KBase supported [Troubleshooting Guide](https://kbase.github.io/kb_sdk_docs/references/troubleshooting.html).
+To learn more about the KBase App Catalog visit the [KBase SDK User Documentation](https://kbase.github.io/kb_sdk_docs/) landing page. Additional [FAQ](https://kbase.github.io/kb_sdk_docs/references/questions_and_answers.html) and supporting documentation can be found in the [KBase Troubleshooting Guide](https://kbase.github.io/kb_sdk_docs/references/troubleshooting.html).
 
 # Citation Guidance
 
